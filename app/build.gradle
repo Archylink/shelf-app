@@ -1,0 +1,51 @@
+plugins {
+    id 'com.android.application'
+}
+
+def vc = (project.findProperty('verCode') ?: '1').toString().toInteger()
+def hasKey = file('release.jks').exists() && System.getenv('KEYSTORE_PASSWORD')
+
+android {
+    namespace 'app.polka'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'app.polka.shelf'
+        minSdk 29
+        targetSdk 34
+        versionCode vc
+        versionName "1.0." + vc
+    }
+
+    signingConfigs {
+        if (hasKey) {
+            release {
+                storeFile file('release.jks')
+                storePassword System.getenv('KEYSTORE_PASSWORD')
+                keyAlias 'polka'
+                keyPassword System.getenv('KEYSTORE_PASSWORD')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig hasKey ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+}
