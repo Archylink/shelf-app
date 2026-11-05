@@ -1,6 +1,9 @@
 package app.polka;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -55,6 +58,24 @@ public class MainActivity extends Activity {
         + "u.onclick=function(){AndroidSave.checkUpdate();};bb.parentNode.insertBefore(u,bb.nextSibling);}"
         + "})();";
 
+
+    // Раз за запуск: отдаём в Android даты выхода (для уведомлений) и раз в неделю делаем автокопию.
+    private static final String SYNC =
+        "(function(){if(window.__polkaSync||!window.AndroidSave)return;window.__polkaSync=1;"
+        + "setTimeout(async function(){try{"
+        + "var r=[],re=/^\\d{4}-\\d{2}-\\d{2}$/;"
+        + "var add=function(id,t,b,w){if(w>Date.now())r.push({id:id,t:t,b:b,w:w});};"
+        + "if(typeof COUNTDOWNS!=='undefined')COUNTDOWNS.forEach(function(c){"
+        + "add('cd'+c.date,c.label.replace(/^[^A-Za-z\u0410-\u044f0-9]+/,''),'Время пришло',new Date(c.date).getTime());});"
+        + "var ev=await LocalDB.rawAll('calendar'),wl=await LocalDB.rawAll('wishlist');"
+        + "ev.forEach(function(e){if(re.test(e.date||''))add('ev'+(e.id||e.title),e.title,'Сегодня выходит',new Date(e.date+'T09:00:00+03:00').getTime());});"
+        + "wl.forEach(function(w){if(re.test(w.releaseDate||''))add('wl'+(w.id||w.title),w.title,'Сегодня выходит игра из списка желаемого',new Date(w.releaseDate+'T09:00:00+03:00').getTime());});"
+        + "AndroidSave.setReminders(JSON.stringify(r.slice(0,60)));"
+        + "if(AndroidSave.shouldBackup()){var o={app:'polka',v:1,date:new Date().toISOString()};"
+        + "for(var n of ['games','wishlist','calendar','covers','digital'])o[n]=await LocalDB.rawAll(n);"
+        + "if(o.games.length>0)AndroidSave.autoBackup(JSON.stringify(o));}"
+        + "}catch(e){}},4000);})();";
+
     private WebView web;
     private ValueCallback<Uri[]> fileCb;
     private long lastBack = 0;
@@ -62,6 +83,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= 33
+            && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 2);
+        }
         web = new WebView(this);
         web.setBackgroundColor(Color.parseColor("#0d1117"));
         setContentView(web);
@@ -100,6 +125,7 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 view.evaluateJavascript(HOOK, null);
+                view.evaluateJavascript(SYNC, null);
             }
         });
 
@@ -221,6 +247,38 @@ public class MainActivity extends Activity {
     }
 
     private class Bridge {
+        @JavascriptInterface
+        public void setReminders(String json) {
+            Reminders.apply(getApplicationContext(), json);
+        }
+
+        @JavascriptInterface
+        public boolean shouldBackup() {
+            long last = getSharedPreferences("auto", MODE_PRIVATE).getLong("last", 0);
+            return System.currentTimeMillis() - last > 7L * 24 * 3600 * 1000;
+        }
+
+        @JavascriptInterface
+        public void autoBackup(String json) {
+            try {
+                String name = "polka-auto.json";
+                getContentResolver().delete(MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                    MediaStore.Downloads.DISPLAY_NAME + "=?", new String[]{name});
+                ContentValues v = new ContentValues();
+                v.put(MediaStore.Downloads.DISPLAY_NAME, name);
+                v.put(MediaStore.Downloads.MIME_TYPE, "application/json");
+                v.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+                Uri u = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
+                if (u == null) return;
+                OutputStream o = getContentResolver().openOutputStream(u);
+                if (o == null) return;
+                o.write(json.getBytes("UTF-8"));
+                o.close();
+                getSharedPreferences("auto", MODE_PRIVATE).edit().putLong("last", System.currentTimeMillis()).apply();
+                toast("Автокопия сохранена в «Загрузки»: " + name);
+            } catch (Exception ignored) { }
+        }
+
         @JavascriptInterface
         public void checkUpdate() {
             MainActivity.this.checkUpdate(true);
