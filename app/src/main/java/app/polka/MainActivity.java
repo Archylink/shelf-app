@@ -138,7 +138,7 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 try {
-                    URL u = new URL("https://api.github.com/repos/Archylink/shelf-app/actions/runs?status=success&per_page=1");
+                    URL u = new URL("https://api.github.com/repos/Archylink/shelf-app/releases/latest");
                     HttpURLConnection c = (HttpURLConnection) u.openConnection();
                     c.setConnectTimeout(8000);
                     c.setReadTimeout(8000);
@@ -149,8 +149,7 @@ public class MainActivity extends Activity {
                     while ((line = r.readLine()) != null) sb.append(line);
                     r.close();
                     JSONObject o = new JSONObject(sb.toString());
-                    if (o.getJSONArray("workflow_runs").length() == 0) { if (manual) toast("Сборок пока нет"); return; }
-                    final int latest = o.getJSONArray("workflow_runs").getJSONObject(0).getInt("run_number");
+                    final int latest = Integer.parseInt(o.getString("tag_name").replaceAll("[^0-9]", ""));
                     sp.edit().putLong("last", System.currentTimeMillis()).apply();
                     int mine = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
                     if (latest > mine) {
@@ -159,12 +158,12 @@ public class MainActivity extends Activity {
                             public void run() {
                                 new AlertDialog.Builder(MainActivity.this)
                                     .setTitle("Есть обновление")
-                                    .setMessage("Вышла новая сборка приложения. Открыть страницу загрузки?")
-                                    .setPositiveButton("Открыть", new DialogInterface.OnClickListener() {
+                                    .setMessage("Вышла новая версия приложения. Скачать? После загрузки открой файл, чтобы установить.")
+                                    .setPositiveButton("Скачать", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface d, int w) {
                                             startActivity(new Intent(Intent.ACTION_VIEW,
-                                                Uri.parse("https://github.com/Archylink/shelf-app/actions")));
+                                                Uri.parse("https://github.com/Archylink/shelf-app/releases/latest/download/polka.apk")));
                                         }
                                     })
                                     .setNegativeButton("Позже", null)
