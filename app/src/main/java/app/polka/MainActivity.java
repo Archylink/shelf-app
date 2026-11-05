@@ -224,7 +224,7 @@ public class MainActivity extends Activity {
     private class Bridge {
         @JavascriptInterface
         public void checkUpdate() {
-            checkUpdate(true);
+            MainActivity.this.checkUpdate(true);
         }
 
         @JavascriptInterface
