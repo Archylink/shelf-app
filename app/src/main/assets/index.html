@@ -5687,6 +5687,66 @@ function openTavrika(){
   migrate(); enterMap(S.map||'world'); fit(); raf=requestAnimationFrame(loop);
 }
 
+/* ---------- Секреты ---------- */
+(function(){
+  const KEY='polka-eggs', TOTAL=3; let found={};
+  try{ found=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){}
+  const mark=id=>{ if(!found[id]){ found[id]=1; try{ localStorage.setItem(KEY,JSON.stringify(found)); }catch(e){} } return Object.keys(found).length; };
+  const st=document.createElement('style');
+  st.textContent='.egg-ov{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(5,8,20,.82);padding:20px}'
+   +'.egg-box{max-width:340px;width:100%;background:var(--card,#161b22);color:var(--text,#e6edf3);border:1px solid var(--line,#30363d);border-radius:16px;padding:22px 20px;text-align:center}'
+   +'.egg-box svg{width:96px;height:96px;display:block;margin:0 auto 10px}'
+   +'.egg-box h3{margin:0 0 8px;font-size:20px}.egg-box p{margin:0 0 10px;font-size:14px;line-height:1.45;opacity:.9}'
+   +'.egg-box small{display:block;opacity:.6;margin-bottom:14px}'
+   +'.egg-box button{background:#f5b301;color:#1a1300;border:0;border-radius:10px;padding:10px 22px;font-weight:700;font-size:14px;cursor:pointer}'
+   +'.egg-disc{position:fixed;top:-60px;width:44px;height:44px;border-radius:50%;z-index:9998;pointer-events:none;background:radial-gradient(circle,transparent 0 18%,#f5b301 19% 24%,#2a2f3a 25% 100%);box-shadow:0 0 0 2px #f5b301 inset;animation:eggfall linear forwards}'
+   +'@keyframes eggfall{to{transform:translateY(115vh) rotate(720deg)}}';
+  document.head.appendChild(st);
+  const TROPHY='<svg viewBox="0 0 96 96" aria-hidden="true"><path d="M28 14h40v26c0 13-9 22-20 22S28 53 28 40z" fill="#f5b301"/><path d="M28 20H14c0 14 6 24 17 26M68 20h14c0 14-6 24-17 26" fill="none" stroke="#f5b301" stroke-width="5"/><rect x="42" y="60" width="12" height="14" fill="#c98f00"/><rect x="30" y="74" width="36" height="9" rx="2" fill="#f5b301"/><path d="M38 22c0 10 2 18 8 24" stroke="#fff6cc" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/></svg>';
+  const DISC='<svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="40" fill="#2a2f3a" stroke="#f5b301" stroke-width="4"/><circle cx="48" cy="48" r="14" fill="#f5b301"/><circle cx="48" cy="48" r="6" fill="#161b22"/></svg>';
+  function show(svg,title,text){
+    if(document.querySelector('.egg-ov')) return;
+    const n=Object.keys(found).length;
+    const o=document.createElement('div'); o.className='egg-ov';
+    o.innerHTML='<div class="egg-box" role="dialog">'+svg+'<h3></h3><p></p><small>Секретов найдено: '+n+' из '+TOTAL+'</small><button type="button">Закрыть</button></div>';
+    o.querySelector('h3').textContent=title; o.querySelector('p').textContent=text;
+    const close=()=>o.remove();
+    o.querySelector('button').addEventListener('click',close);
+    o.addEventListener('click',e=>{ if(e.target===o) close(); });
+    document.body.appendChild(o);
+  }
+  function rain(){
+    for(let i=0;i<36;i++){
+      const d=document.createElement('div'); d.className='egg-disc';
+      d.style.left=(Math.random()*96)+'vw'; d.style.animationDuration=(2.2+Math.random()*2)+'s'; d.style.animationDelay=(Math.random()*1.2)+'s';
+      document.body.appendChild(d); setTimeout(()=>d.remove(),5200);
+    }
+  }
+  // 1. Семь касаний по названию
+  const h=document.querySelector('header h1'); let taps=0, tt=0;
+  if(h) h.addEventListener('click',()=>{
+    taps++; clearTimeout(tt); tt=setTimeout(()=>{taps=0;},1500);
+    if(taps>=7){ taps=0; mark('trophy'); const c=(document.getElementById('cnt-shelf')||{}).textContent||'0';
+      show(TROPHY,'Платина','Коллекционер. На полке дисков: '+c+'. Трофей выдан за семь касаний подряд.'); }
+  });
+  // 2. Читкоды в строке поиска
+  const CH={hesoyam:['Читкод принят','Здоровье, броня и деньги. С деньгами не вышло: на новые диски придётся копить.'],
+            iddqd:['Читкод принят','Бессмертие включено. Полка теперь не боится ни пыли, ни переезда.'],
+            rosebud:['Читкод принят','Денег прибавилось. Нет, не прибавилось. Но попытка засчитана.']};
+  document.addEventListener('input',e=>{
+    const t=e.target; if(!t||!t.classList||!t.classList.contains('searchbox')) return;
+    const v=t.value.trim().toLowerCase();
+    if(CH[v]){ t.value=''; t.dispatchEvent(new Event('input',{bubbles:true})); mark('cheat'); show(DISC,CH[v][0],CH[v][1]); }
+  });
+  // 3. Код Konami: вверх вверх вниз вниз влево вправо влево вправо B A
+  const SEQ=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a']; let pos=0;
+  document.addEventListener('keydown',e=>{
+    const k=e.key.length===1?e.key.toLowerCase():e.key;
+    if(k===SEQ[pos]){ pos++; if(pos===SEQ.length){ pos=0; mark('konami'); rain(); show(DISC,'30 жизней','Код Konami сработал. Диски посыпались с полки.'); } }
+    else pos=(k===SEQ[0])?1:0;
+  });
+})();
+
 initGamesTab();
 /* ===== Цифра: цифровые игры и PS Store. Обложки — с RAWG (rawg.io), только для этого раздела ===== */
 const RAWG_KEY='430f5c0b44bf486dae60c71ce3445665';

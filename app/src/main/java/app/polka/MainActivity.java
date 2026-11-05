@@ -1,6 +1,9 @@
 package app.polka;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Color;
@@ -21,7 +24,13 @@ import android.widget.Toast;
 
 import androidx.webkit.WebViewAssetLoader;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class MainActivity extends Activity {
     private static final String HOST = "appassets.androidplatform.net";
@@ -110,7 +119,56 @@ public class MainActivity extends Activity {
             web.restoreState(savedInstanceState);
         } else {
             web.loadUrl("https://" + HOST + "/assets/index.html");
+            checkUpdate();
         }
+    }
+
+    // Раз в сутки смотрим номер последней успешной сборки на GitHub и сравниваем со своим.
+    private void checkUpdate() {
+        final SharedPreferences sp = getSharedPreferences("upd", MODE_PRIVATE);
+        long now = System.currentTimeMillis();
+        if (now - sp.getLong("last", 0) < 24L * 3600 * 1000) return;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL u = new URL("https://api.github.com/repos/Archylink/shelf-app/actions/runs?status=success&per_page=1");
+                    HttpURLConnection c = (HttpURLConnection) u.openConnection();
+                    c.setConnectTimeout(8000);
+                    c.setReadTimeout(8000);
+                    c.setRequestProperty("Accept", "application/vnd.github+json");
+                    BufferedReader r = new BufferedReader(new InputStreamReader(c.getInputStream(), "UTF-8"));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = r.readLine()) != null) sb.append(line);
+                    r.close();
+                    JSONObject o = new JSONObject(sb.toString());
+                    if (o.getJSONArray("workflow_runs").length() == 0) return;
+                    final int latest = o.getJSONArray("workflow_runs").getJSONObject(0).getInt("run_number");
+                    sp.edit().putLong("last", System.currentTimeMillis()).apply();
+                    int mine = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+                    if (latest > mine) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Есть обновление")
+                                    .setMessage("Вышла новая сборка приложения. Открыть страницу загрузки?")
+                                    .setPositiveButton("Открыть", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface d, int w) {
+                                            startActivity(new Intent(Intent.ACTION_VIEW,
+                                                Uri.parse("https://github.com/Archylink/shelf-app/actions")));
+                                        }
+                                    })
+                                    .setNegativeButton("Позже", null)
+                                    .show();
+                            }
+                        });
+                    }
+                } catch (Exception ignored) { }
+            }
+        }).start();
     }
 
     @Override
