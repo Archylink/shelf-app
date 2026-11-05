@@ -47,7 +47,13 @@ public class MainActivity extends Activity {
         + "var fr=new FileReader();fr.onload=function(){"
         + "AndroidSave.save(name,b.type||'application/octet-stream',String(fr.result).split(',')[1]||'');};"
         + "fr.readAsDataURL(b);});return;}"
-        + "return o.apply(this,arguments);};})();";
+        + "return o.apply(this,arguments);};"
+        + "var bb=document.getElementById('btnBackup');"
+        + "if(bb&&!document.getElementById('btnUpd')){var u=document.createElement('button');"
+        + "u.className=bb.className;u.id='btnUpd';u.style.marginBottom='8px';u.style.marginLeft='6px';"
+        + "u.textContent='Проверить обновления';"
+        + "u.onclick=function(){AndroidSave.checkUpdate();};bb.parentNode.insertBefore(u,bb.nextSibling);}"
+        + "})();";
 
     private WebView web;
     private ValueCallback<Uri[]> fileCb;
@@ -119,15 +125,15 @@ public class MainActivity extends Activity {
             web.restoreState(savedInstanceState);
         } else {
             web.loadUrl("https://" + HOST + "/assets/index.html");
-            checkUpdate();
+            checkUpdate(false);
         }
     }
 
     // Раз в сутки смотрим номер последней успешной сборки на GitHub и сравниваем со своим.
-    private void checkUpdate() {
+    private void checkUpdate(final boolean manual) {
         final SharedPreferences sp = getSharedPreferences("upd", MODE_PRIVATE);
         long now = System.currentTimeMillis();
-        if (now - sp.getLong("last", 0) < 24L * 3600 * 1000) return;
+        if (!manual && now - sp.getLong("last", 0) < 24L * 3600 * 1000) return;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -143,7 +149,7 @@ public class MainActivity extends Activity {
                     while ((line = r.readLine()) != null) sb.append(line);
                     r.close();
                     JSONObject o = new JSONObject(sb.toString());
-                    if (o.getJSONArray("workflow_runs").length() == 0) return;
+                    if (o.getJSONArray("workflow_runs").length() == 0) { if (manual) toast("Сборок пока нет"); return; }
                     final int latest = o.getJSONArray("workflow_runs").getJSONObject(0).getInt("run_number");
                     sp.edit().putLong("last", System.currentTimeMillis()).apply();
                     int mine = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
@@ -165,8 +171,12 @@ public class MainActivity extends Activity {
                                     .show();
                             }
                         });
+                    } else if (manual) {
+                        toast("У тебя последняя версия");
                     }
-                } catch (Exception ignored) { }
+                } catch (Exception ignored) {
+                    if (manual) toast("Не удалось проверить обновления");
+                }
             }
         }).start();
     }
@@ -212,6 +222,11 @@ public class MainActivity extends Activity {
     }
 
     private class Bridge {
+        @JavascriptInterface
+        public void checkUpdate() {
+            checkUpdate(true);
+        }
+
         @JavascriptInterface
         public void save(String name, String mime, String b64) {
             try {
