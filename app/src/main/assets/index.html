@@ -5940,6 +5940,7 @@ setTimeout(updateRndBtn,600);
    +'.fd-top{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;justify-content:space-between;align-items:center;padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px));pointer-events:none}'
    +'.fd-top button{pointer-events:auto;border:none;border-radius:999px;background:rgba(0,0,0,.5);color:#fff;font-size:14px;padding:9px 16px;cursor:pointer}'
    +'.fd-top .fd-n{font-size:13px;opacity:.85}'
+   +'.fd-yt{position:relative;width:100%;aspect-ratio:16/9;background:#000;max-height:100%}.fd-yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.fd-tap{position:absolute;inset:0;z-index:2;touch-action:pan-y}'
    +'.fd-hint{position:absolute;left:0;right:0;bottom:calc(96px + env(safe-area-inset-bottom,0px));text-align:center;font-size:12px;opacity:.7;pointer-events:none}';
   document.head.appendChild(st);
   function lib(){
@@ -5950,7 +5951,16 @@ setTimeout(updateRndBtn,600);
     for(let i=u.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [u[i],u[j]]=[u[j],u[i]]; }
     return u;
   }
+  const ytWait={};
+  window.__ytCb=function(id,vid,ok){ const f=ytWait[id]; if(f){ delete ytWait[id]; f({v:vid,ok:ok}); } };
+  function ytSearch(q){ return new Promise(res=>{ const id='y'+Math.random().toString(36).slice(2); ytWait[id]=res; setTimeout(()=>{ if(ytWait[id]){ delete ytWait[id]; res({v:'',ok:0}); } },20000); try{ AndroidSave.ytSearch(id,q); }catch(e){ delete ytWait[id]; res({v:'',ok:0}); } }); }
   async function trailerFor(it){
+    if(window.AndroidSave&&AndroidSave.ytSearch){
+      const c0=cache[it.key]; if(c0&&c0.y) return c0;
+      const r=await ytSearch(it.title+' '+(/^PS[45]$/.test(it.platform)?it.platform+' ':'')+'official trailer');
+      if(r.v){ const rec={y:r.v,u:'',p:'',t:Date.now()}; cache[it.key]=rec; saveC(); return rec; }
+      if(!r.ok) return {u:'',err:1};
+    }
     const c=cache[it.key]; if(c&&(c.u||Date.now()-c.t<14*864e5)) return c;
     try{
       const res=await rawgSearch(it.title,it.title,it.year); const m=res[0];
@@ -5974,7 +5984,12 @@ setTimeout(updateRndBtn,600);
     const sc=f.querySelector('#feedScroll'), nEl=f.querySelector('#fdN'); let muted=true;
     const close=()=>{ document.removeEventListener('keydown',onKey); f.querySelectorAll('video').forEach(v=>{ v.pause(); v.removeAttribute('src'); v.load(); }); f.remove(); };
     f.querySelector('#fdClose').onclick=close;
-    f.querySelector('#fdMute').onclick=e=>{ muted=!muted; e.target.textContent=muted?'Звук выкл.':'Звук вкл.'; f.querySelectorAll('video').forEach(v=>{ v.muted=muted; }); };
+    f.querySelector('#fdMute').onclick=e=>{ muted=!muted; e.target.textContent=muted?'Звук выкл.':'Звук вкл.'; f.querySelectorAll('video').forEach(v=>{ v.muted=muted; }); f.querySelectorAll('.fd-yt').forEach(b=>{ if(b.querySelector('iframe')){ ytOff(b.parentNode); ytOn(b.parentNode); } }); };
+    function ytOn(d){ const b=d.querySelector('.fd-yt'); if(!b||b.querySelector('iframe')) return; const id=b.dataset.vid;
+      const fr=document.createElement('iframe'); fr.setAttribute('allow','autoplay; encrypted-media; picture-in-picture'); fr.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+      fr.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&mute='+(muted?1:0)+'&playsinline=1&controls=0&loop=1&playlist='+id+'&rel=0&modestbranding=1&enablejsapi=1&origin='+encodeURIComponent(location.origin);
+      b.insertBefore(fr,b.firstChild); b.dataset.paused='0'; }
+    function ytOff(d){ const b=d.querySelector('.fd-yt'); if(!b) return; const fr=b.querySelector('iframe'); if(fr) fr.remove(); }
     const onKey=e=>{ if(e.key==='Escape') close(); else if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault(); sc.scrollBy({top:(e.key==='ArrowDown'?1:-1)*sc.clientHeight,behavior:'smooth'}); } };
     document.addEventListener('keydown',onKey);
     if(!items.length){ sc.innerHTML='<div class="fd-item"><div class="fd-info" style="position:static;background:none;text-align:center"><h4>Библиотека пуста</h4><p>Добавь игры на полку или во вкладку «Цифра», и здесь появятся их трейлеры.</p></div></div>'; return; }
@@ -5996,6 +6011,12 @@ setTimeout(updateRndBtn,600);
       const t=await trailerFor(it);
       const showCover=src=>{ if(!src) return; const im=document.createElement('img'); im.className='fd-cover'; im.alt=''; im.src=src; d.insertBefore(im,info); };
       const yt=()=>{ const a=document.createElement('a'); a.href='https://www.youtube.com/results?search_query='+encodeURIComponent(it.title+' '+(it.platform||'')+' official trailer'); a.target='_blank'; a.rel='noopener'; a.textContent='Найти трейлер на YouTube'; info.appendChild(a); };
+      if(t.y){ status.remove(); const box=document.createElement('div'); box.className='fd-yt'; box.dataset.vid=t.y;
+        const tap=document.createElement('div'); tap.className='fd-tap'; box.appendChild(tap);
+        tap.addEventListener('click',()=>{ const fr=box.querySelector('iframe'); if(!fr||!fr.contentWindow) return; const pz=box.dataset.paused==='1'; box.dataset.paused=pz?'0':'1'; fr.contentWindow.postMessage(JSON.stringify({event:'command',func:pz?'playVideo':'pauseVideo',args:[]}),'*'); });
+        d.insertBefore(box,info);
+        const a=document.createElement('a'); a.href='https://www.youtube.com/watch?v='+t.y; a.target='_blank'; a.rel='noopener'; a.textContent='Открыть на YouTube'; info.appendChild(a);
+        if(d.dataset.on==='1') ytOn(d); return; }
       if(t.err){ loaded.delete(i); status.textContent=(typeof rawgMsg==='function'?rawgMsg({message:''}):'Нет связи.'); showCover(it.cover); return; }
       if(!t.u){ status.textContent='В базе нет трейлера для этой игры.'; showCover(it.cover||t.p); yt(); return; }
       status.remove();
@@ -6006,8 +6027,8 @@ setTimeout(updateRndBtn,600);
       if(d.dataset.on==='1') v.play().catch(()=>{});
     }
     const io=new IntersectionObserver(es=>{ es.forEach(en=>{ const d=en.target, i=+d.dataset.i, v=d.querySelector('video');
-      if(en.isIntersecting&&en.intersectionRatio>=.6){ d.dataset.on='1'; nEl.textContent=(i+1)+' из '+els.length; load(i); load(i+1); if(v) v.play().catch(()=>{}); }
-      else { d.dataset.on='0'; if(v) v.pause(); } }); },{root:sc,threshold:[0,.6,1]});
+      if(en.isIntersecting&&en.intersectionRatio>=.6){ d.dataset.on='1'; nEl.textContent=(i+1)+' из '+els.length; load(i); load(i+1); if(v) v.play().catch(()=>{}); ytOn(d); }
+      else { d.dataset.on='0'; if(v) v.pause(); ytOff(d); } }); },{root:sc,threshold:[0,.6,1]});
     els.forEach(d=>io.observe(d));
     nEl.textContent='1 из '+els.length;
   };

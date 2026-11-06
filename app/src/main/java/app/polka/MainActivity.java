@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -34,6 +35,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends Activity {
     private static final String HOST = "appassets.androidplatform.net";
@@ -108,6 +112,8 @@ public class MainActivity extends Activity {
         s.setSupportZoom(false);
 
         web.addJavascriptInterface(new Bridge(), "AndroidSave");
+        CookieManager.getInstance().setAcceptCookie(true);
+        CookieManager.getInstance().setAcceptThirdPartyCookies(web, true);
 
         web.setWebViewClient(new WebViewClient() {
             @Override
@@ -319,6 +325,44 @@ public class MainActivity extends Activity {
                 getSharedPreferences("auto", MODE_PRIVATE).edit().putLong("last", System.currentTimeMillis()).apply();
                 toast("Автокопия сохранена в «Загрузки»: " + name);
             } catch (Exception ignored) { }
+        }
+
+        // Поиск трейлера на YouTube без ключа: берём первую найденную ссылку на видео из страницы результатов.
+        @JavascriptInterface
+        public void ytSearch(final String id, final String query) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String vid = "";
+                    int ok = 0;
+                    try {
+                        URL u = new URL("https://www.youtube.com/results?search_query="
+                            + URLEncoder.encode(query, "UTF-8") + "&sp=EgIQAQ%253D%253D");
+                        HttpURLConnection c = (HttpURLConnection) u.openConnection();
+                        c.setConnectTimeout(10000);
+                        c.setReadTimeout(10000);
+                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36");
+                        c.setRequestProperty("Accept-Language", "en-US,en;q=0.9");
+                        c.setRequestProperty("Cookie", "CONSENT=YES+1; SOCS=CAI");
+                        BufferedReader r = new BufferedReader(new InputStreamReader(c.getInputStream(), "UTF-8"));
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = r.readLine()) != null && sb.length() < 3000000) sb.append(line);
+                        r.close();
+                        Matcher m = Pattern.compile("\"videoId\":\"([A-Za-z0-9_-]{11})\"").matcher(sb);
+                        if (m.find()) vid = m.group(1);
+                        ok = 1;
+                    } catch (Exception ignored) { }
+                    final String js = "window.__ytCb&&window.__ytCb(" + JSONObject.quote(id) + ","
+                        + JSONObject.quote(vid) + "," + ok + ")";
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            web.evaluateJavascript(js, null);
+                        }
+                    });
+                }
+            }).start();
         }
 
         @JavascriptInterface
