@@ -137,7 +137,8 @@ button{touch-action:manipulation}
     </div>
     <div id="shelfBar" style="margin-bottom:6px"></div>
     <div id="shelfStats" class="meta" style="margin-bottom:8px"></div>
-    <button class="mv" id="btnRandom" style="margin-bottom:8px">🎲 Во что играть?</button> <button class="mv" id="btnTheme" style="margin-bottom:8px">🌓 Тема</button> <button class="mv" id="btnSound" style="margin-bottom:8px">🔊 Звук</button>
+    <style>.rndbtn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin:0 0 10px;padding:12px 14px;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text);cursor:pointer;box-shadow:var(--shadow);font:inherit;transition:border-color .15s,transform .1s}.rndbtn *{pointer-events:none}.rndbtn:hover{border-color:var(--accent)}.rndbtn:active{transform:scale(.99)}.rndic{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center}.rndic svg{width:26px;height:26px;transition:transform .25s}.rndbtn:active .rndic svg{transform:rotate(25deg)}.rndtx{flex:1;min-width:0}.rndt{display:block;font-size:16px;font-weight:700;letter-spacing:-.01em}.rnds{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}.rndgo{flex:0 0 auto;width:18px;height:18px;color:var(--muted)}</style><button class="rndbtn" id="btnRandom" type="button"><span class="rndic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1" fill="currentColor"/></svg></span><span class="rndtx"><span class="rndt">Во что играть?</span><span class="rnds" id="rndSub">Подберу игру с полки</span></span><svg class="rndgo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button class="rndbtn" id="btnFeed" type="button"><span class="rndic" style="background:var(--accent2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="3.5"/><path d="M10.5 9.5v5l4-2.5z" fill="currentColor"/></svg></span><span class="rndtx"><span class="rndt">Лента трейлеров</span><span class="rnds">Листай трейлеры игр из библиотеки</span></span><svg class="rndgo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button> <button class="mv" id="btnTheme" style="margin-bottom:8px">🌓 Тема</button> <button class="mv" id="btnSound" style="margin-bottom:8px">🔊 Звук</button>
     <button class="mv" id="btnExport" style="margin-bottom:8px">💾 Копия коллекции (CSV)</button>
     <button class="mv" id="btnBackup" style="margin-bottom:8px">⬇️ Сохранить копию в файл</button> <label class="mv" style="margin-bottom:8px;display:inline-block">⬆️ Загрузить копию<input type="file" accept=".json,application/json" id="restoreFile" hidden></label>
     <button class="addbtn" id="btnAddGame">+ Добавить диск</button>
@@ -891,10 +892,10 @@ function openExport(){
   w.querySelector('#ex_sel').onclick=()=>{t.focus();t.select();};
   w.querySelector('#ex_close').onclick=()=>w.remove();
 }
-function pickNext(){
-  const pool=games.filter(g=>['','Не пройдено','Играю','Перепройти'].includes((g.progress||'').trim()) && matchesQuery(g.title,qShelf) && (!fPlat||g.platform===fPlat) && (!fSer||seriesOf(g)===fSer) && (!fDev||devOf(g)===fDev) && (!fGen||genreOf(g)===fGen) && (!fYear||yearOf(g)===fYear));
-  return pool.length?pool[Math.floor(Math.random()*pool.length)]:null;
+function rndPool(){
+  return games.filter(g=>['','Не пройдено','Играю','Перепройти'].includes((g.progress||'').trim()) && matchesQuery(g.title,qShelf) && (!fPlat||g.platform===fPlat) && (!fSer||seriesOf(g)===fSer) && (!fDev||devOf(g)===fDev) && (!fGen||genreOf(g)===fGen) && (!fYear||yearOf(g)===fYear));
 }
+function pickNext(){ const pool=rndPool(); return pool.length?pool[Math.floor(Math.random()*pool.length)]:null; }
 const QUIPS=["🌿 Пойди потрогай траву. Она настоящая, проверено.","🧹 Дом сам себя не уберёт. Диски подождут.","🚿 Помойся. Серьёзно. Потом вернёшься к дискам.","🥤 Попей воды. Не колы. Воды.","🚶 Выйди на улицу на 15 минут. Солнце бесплатное.","🍳 Съешь что-нибудь нормальное, а не чипсы.","🛏 Застели кровать. +1 к характеристике «Порядок».","📞 Позвони близким. Сюжетный квест, который нельзя пропустить.","🧘 Потянись. Спина не расходник.","🪴 Полей цветок. Нет цветка? Тогда сначала заведи цветок."];
 function openRandom(force){
   const old=document.getElementById('rndBox'); if(old) old.remove();
@@ -911,7 +912,7 @@ function openRandom(force){
   sfx('dice');
   const g=pickNext();
   const w=document.createElement('div'); w.className='mback'; w.id='rndBox';
-  w.innerHTML=g?`<div class="mbox" style="text-align:center"><h3>🎲 Играй в…</h3>${g.coverData?`<img src="${g.coverData}" style="max-height:200px;border-radius:10px">`:`<div style="font-size:64px">${emojiFor(g.title)}</div>`}<div class="title" style="font-size:18px;margin:8px 0">${esc(g.title)}</div><div class="meta">${esc([g.platform,devOf(g),genreOf(g),yearOf(g)].filter(Boolean).join(' · '))}</div><div class="row"><button id="rn_again">Ещё раз</button><button class="ok" id="rn_close">Ок</button></div></div>`:`<div class="mbox" style="text-align:center"><h3>Нечего выбирать</h3><div class="meta">Среди выбранных фильтров нет непройденных игр.</div><div class="row"><button class="ok" id="rn_close">Закрыть</button></div></div>`;
+  w.innerHTML=g?`<div class="mbox" style="text-align:center"><h3>Сегодня играем в…</h3>${g.coverData?`<img src="${g.coverData}" style="max-height:200px;border-radius:10px">`:`<div style="font-size:64px">${emojiFor(g.title)}</div>`}<div class="title" style="font-size:18px;margin:8px 0">${esc(g.title)}</div><div class="meta">${esc([g.platform,devOf(g),genreOf(g),yearOf(g)].filter(Boolean).join(' · '))}</div><div class="row"><button id="rn_again">Другая игра</button><button class="ok" id="rn_close">Играю</button></div></div>`:`<div class="mbox" style="text-align:center"><h3>Нечего выбирать</h3><div class="meta">Среди выбранных фильтров нет непройденных игр.</div><div class="row"><button class="ok" id="rn_close">Закрыть</button></div></div>`;
   document.body.appendChild(w);
   const a=w.querySelector('#rn_again'); if(a) a.onclick=()=>openRandom(true);
   w.querySelector('#rn_close').onclick=()=>w.remove();
@@ -5881,6 +5882,136 @@ function openTavrika(){
     if(k===SEQ[pos]){ pos++; if(pos===SEQ.length){ pos=0; mark('konami'); rain(); show(DISC,'30 жизней','Код Konami сработал. Диски посыпались с полки.'); } }
     else pos=(k===SEQ[0])?1:0;
   });
+})();
+
+/* ---------- Настройки (шестерня) ---------- */
+(function(){
+  const st=document.createElement('style');
+  st.textContent='#btnGear{position:absolute;right:max(12px,env(safe-area-inset-right,0px));top:10px;width:38px;height:38px;border-radius:50%;border:none;background:var(--card2);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}'
+   +'#btnGear svg{width:22px;height:22px;transition:transform .35s}#btnGear.on svg{transform:rotate(60deg)}'
+   +'#setBack{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9000;background:rgba(0,0,0,.45);display:none}#setBack.on{display:block}'
+   +'#setPanel{position:fixed;top:56px;right:max(12px,env(safe-area-inset-right,0px));width:min(330px,calc(100vw - 24px));max-height:calc(100vh - 72px);overflow:auto;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:16px;padding:14px;z-index:9001;display:none;box-shadow:0 10px 30px rgba(0,0,0,.35)}'
+   +'#setPanel.on{display:block}#setPanel h3{margin:0 0 10px;font-size:16px}'
+   +'#setBody .mv{display:block!important;width:100%;text-align:left;margin:0 0 8px!important;border-radius:12px;padding:10px 14px}'
+   +'#setVer{margin:6px 2px 0;font-size:12px;color:var(--muted)}';
+  document.head.appendChild(st);
+  const hd=document.querySelector('header'); if(!hd) return;
+  const g=document.createElement('button'); g.id='btnGear'; g.type='button'; g.setAttribute('aria-label','Настройки');
+  g.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/><circle cx="12" cy="12" r="6.6"/></svg>';
+  hd.appendChild(g);
+  const back=document.createElement('div'); back.id='setBack';
+  const pan=document.createElement('div'); pan.id='setPanel'; pan.setAttribute('role','dialog'); pan.setAttribute('aria-label','Настройки');
+  pan.innerHTML='<h3>Настройки</h3><div id="setBody"></div><div id="setVer">Веб-версия</div>';
+  document.body.appendChild(back); document.body.appendChild(pan);
+  const body=pan.querySelector('#setBody');
+  ['btnTheme','btnSound','btnExport','btnBackup'].forEach(id=>{ const e=document.getElementById(id); if(e) body.appendChild(e); });
+  const rf=document.getElementById('restoreFile'); if(rf&&rf.closest('label')) body.appendChild(rf.closest('label'));
+  const set=on=>{ back.classList.toggle('on',on); pan.classList.toggle('on',on); g.classList.toggle('on',on); };
+  g.addEventListener('click',()=>set(!pan.classList.contains('on')));
+  back.addEventListener('click',()=>set(false));
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') set(false); });
+})();
+
+/* ---------- Подпись на кнопке «Во что играть?» ---------- */
+function updateRndBtn(){
+  const el=document.getElementById('rndSub'); if(!el||typeof rndPool!=='function') return;
+  let n=0; try{ n=rndPool().length; }catch(e){ return; }
+  const pl=(k,a,b,c)=>{ const m=k%100, d=k%10; return (m>10&&m<20)?c:d===1?a:(d>1&&d<5)?b:c; };
+  el.textContent=n?'В подборе '+n+' '+pl(n,'игра','игры','игр')+', выберу одну':'Нечего выбирать: все пройдены или фильтры узкие';
+}
+try{ const _rg=renderGames; renderGames=function(){ const r=_rg.apply(this,arguments); updateRndBtn(); return r; }; }catch(e){}
+setTimeout(updateRndBtn,600);
+
+/* ---------- Лента трейлеров ---------- */
+(function(){
+  const CK='polka-trl-v1'; let cache={};
+  try{ cache=JSON.parse(localStorage.getItem(CK)||'{}')||{}; }catch(e){}
+  const saveC=()=>{ try{ localStorage.setItem(CK,JSON.stringify(cache)); }catch(e){} };
+  const st=document.createElement('style');
+  st.textContent='#feed{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9500;background:#000;color:#fff;display:flex;flex-direction:column}'
+   +'#feedScroll{flex:1;min-height:0;overflow-y:auto;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}'
+   +'.fd-item{position:relative;height:100%;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#05060c}'
+   +'.fd-bg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(22px) brightness(.45);transform:scale(1.1)}'
+   +'.fd-media{position:relative;width:100%;max-height:100%;display:block;object-fit:contain;background:#000}'
+   +'.fd-cover{position:relative;width:min(70%,320px);aspect-ratio:16/9;object-fit:cover;border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.5);background:#14182b}'
+   +'.fd-info{position:absolute;left:0;right:0;bottom:0;padding:48px max(16px,env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:linear-gradient(transparent,rgba(0,0,0,.85));pointer-events:none}'
+   +'.fd-info h4{margin:0 0 4px;font-size:20px;line-height:1.2}.fd-info p{margin:0;font-size:13px;opacity:.8}'
+   +'.fd-info a{pointer-events:auto;display:inline-block;margin-top:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;font-size:13px;text-decoration:none}'
+   +'.fd-top{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;justify-content:space-between;align-items:center;padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px));pointer-events:none}'
+   +'.fd-top button{pointer-events:auto;border:none;border-radius:999px;background:rgba(0,0,0,.5);color:#fff;font-size:14px;padding:9px 16px;cursor:pointer}'
+   +'.fd-top .fd-n{font-size:13px;opacity:.85}'
+   +'.fd-hint{position:absolute;left:0;right:0;bottom:calc(96px + env(safe-area-inset-bottom,0px));text-align:center;font-size:12px;opacity:.7;pointer-events:none}';
+  document.head.appendChild(st);
+  function lib(){
+    const out=[];
+    (games||[]).forEach(g=>out.push({key:'g'+(g.id||g.title),title:g.title,platform:g.platform||'',year:g.year,cover:g.coverData||g.coverUrl||''}));
+    (typeof digital!=='undefined'?digital:[]).forEach(d=>out.push({key:'d'+(d.id||d.title),title:d.title,platform:d.platform||'PS Store',year:d.year,cover:d.coverData||d.coverUrl||''}));
+    const seen=new Set(); const u=out.filter(x=>{ const k=String(x.title||'').toLowerCase(); if(!k||seen.has(k)) return false; seen.add(k); return true; });
+    for(let i=u.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [u[i],u[j]]=[u[j],u[i]]; }
+    return u;
+  }
+  async function trailerFor(it){
+    const c=cache[it.key]; if(c&&(c.u||Date.now()-c.t<14*864e5)) return c;
+    try{
+      const res=await rawgSearch(it.title,it.title,it.year); const m=res[0];
+      let rec={u:'',p:'',t:Date.now()};
+      if(m){
+        const r=await fetch('https://api.rawg.io/api/games/'+m.id+'/movies?key='+RAWG_KEY);
+        if(!r.ok) throw new Error('RAWG '+r.status);
+        const j=await r.json(), v=(j.results||[])[0];
+        const https=x=>String(x||'').replace(/^http:/,'https:');
+        rec={u:https(v&&v.data?(v.data['480']||v.data.max||''):''),p:https((v&&v.preview)||m.background_image||''),t:Date.now()};
+      }
+      cache[it.key]=rec; saveC(); return rec;
+    }catch(e){ return {u:'',err:1}; }
+  }
+  window.openFeed=function(){
+    if(document.getElementById('feed')) return;
+    const items=lib();
+    const f=document.createElement('div'); f.id='feed';
+    f.innerHTML='<div class="fd-top"><button type="button" id="fdClose">Закрыть</button><span class="fd-n" id="fdN"></span><button type="button" id="fdMute">Звук выкл.</button></div><div id="feedScroll"></div>';
+    document.body.appendChild(f);
+    const sc=f.querySelector('#feedScroll'), nEl=f.querySelector('#fdN'); let muted=true;
+    const close=()=>{ document.removeEventListener('keydown',onKey); f.querySelectorAll('video').forEach(v=>{ v.pause(); v.removeAttribute('src'); v.load(); }); f.remove(); };
+    f.querySelector('#fdClose').onclick=close;
+    f.querySelector('#fdMute').onclick=e=>{ muted=!muted; e.target.textContent=muted?'Звук выкл.':'Звук вкл.'; f.querySelectorAll('video').forEach(v=>{ v.muted=muted; }); };
+    const onKey=e=>{ if(e.key==='Escape') close(); else if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault(); sc.scrollBy({top:(e.key==='ArrowDown'?1:-1)*sc.clientHeight,behavior:'smooth'}); } };
+    document.addEventListener('keydown',onKey);
+    if(!items.length){ sc.innerHTML='<div class="fd-item"><div class="fd-info" style="position:static;background:none;text-align:center"><h4>Библиотека пуста</h4><p>Добавь игры на полку или во вкладку «Цифра», и здесь появятся их трейлеры.</p></div></div>'; return; }
+    const els=items.map((it,i)=>{
+      const d=document.createElement('div'); d.className='fd-item'; d.dataset.i=i;
+      const bg=document.createElement('div'); bg.className='fd-bg'; if(it.cover) bg.style.backgroundImage='url("'+it.cover+'")';
+      const info=document.createElement('div'); info.className='fd-info';
+      const h=document.createElement('h4'); h.textContent=it.title; const pp=document.createElement('p'); pp.textContent=[it.platform,it.year].filter(Boolean).join(' · ');
+      info.appendChild(h); info.appendChild(pp);
+      d.appendChild(bg); d.appendChild(info);
+      if(i===0){ const hint=document.createElement('div'); hint.className='fd-hint'; hint.textContent='Свайп вверх: следующая игра'; d.appendChild(hint); }
+      sc.appendChild(d); return d;
+    });
+    const loaded=new Set();
+    async function load(i){
+      if(i<0||i>=els.length||loaded.has(i)) return; loaded.add(i);
+      const it=items[i], d=els[i], info=d.querySelector('.fd-info');
+      const status=document.createElement('p'); status.textContent='Ищу трейлер…'; status.style.marginTop='6px'; info.appendChild(status);
+      const t=await trailerFor(it);
+      const showCover=src=>{ if(!src) return; const im=document.createElement('img'); im.className='fd-cover'; im.alt=''; im.src=src; d.insertBefore(im,info); };
+      const yt=()=>{ const a=document.createElement('a'); a.href='https://www.youtube.com/results?search_query='+encodeURIComponent(it.title+' '+(it.platform||'')+' official trailer'); a.target='_blank'; a.rel='noopener'; a.textContent='Найти трейлер на YouTube'; info.appendChild(a); };
+      if(t.err){ loaded.delete(i); status.textContent=(typeof rawgMsg==='function'?rawgMsg({message:''}):'Нет связи.'); showCover(it.cover); return; }
+      if(!t.u){ status.textContent='В базе нет трейлера для этой игры.'; showCover(it.cover||t.p); yt(); return; }
+      status.remove();
+      const v=document.createElement('video'); v.className='fd-media'; v.playsInline=true; v.muted=muted; v.loop=true; v.preload='auto'; v.controls=false; if(t.p) v.poster=t.p; v.src=t.u;
+      v.addEventListener('click',()=>{ v.paused?v.play().catch(()=>{}):v.pause(); });
+      v.addEventListener('error',()=>{ v.remove(); status.textContent='Трейлер не загрузился.'; info.appendChild(status); showCover(it.cover||t.p); yt(); });
+      d.insertBefore(v,info);
+      if(d.dataset.on==='1') v.play().catch(()=>{});
+    }
+    const io=new IntersectionObserver(es=>{ es.forEach(en=>{ const d=en.target, i=+d.dataset.i, v=d.querySelector('video');
+      if(en.isIntersecting&&en.intersectionRatio>=.6){ d.dataset.on='1'; nEl.textContent=(i+1)+' из '+els.length; load(i); load(i+1); if(v) v.play().catch(()=>{}); }
+      else { d.dataset.on='0'; if(v) v.pause(); } }); },{root:sc,threshold:[0,.6,1]});
+    els.forEach(d=>io.observe(d));
+    nEl.textContent='1 из '+els.length;
+  };
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#btnFeed')) window.openFeed(); });
 })();
 
 initGamesTab();
