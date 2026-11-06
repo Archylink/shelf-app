@@ -58,6 +58,7 @@ public class MainActivity extends Activity {
         + "u.onclick=function(){AndroidSave.checkUpdate();};bb.parentNode.insertBefore(u,bb.nextSibling);"
         + "var w=document.createElement('button');w.className=bb.className;w.id='btnNew';w.style.marginBottom='8px';w.style.marginLeft='6px';"
         + "w.textContent='Что нового';w.onclick=function(){AndroidSave.showChangelog();};u.parentNode.insertBefore(w,u.nextSibling);}"
+        + "var sv=document.getElementById('setVer');if(sv)sv.textContent='Версия приложения 1.0.'+AndroidSave.versionCode();"
         + "})();";
 
 
@@ -309,6 +310,15 @@ public class MainActivity extends Activity {
                 getSharedPreferences("auto", MODE_PRIVATE).edit().putLong("last", System.currentTimeMillis()).apply();
                 toast("Автокопия сохранена в «Загрузки»: " + name);
             } catch (Exception ignored) { }
+        }
+
+        @JavascriptInterface
+        public int versionCode() {
+            try {
+                return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+            } catch (Exception e) {
+                return 0;
+            }
         }
 
         @JavascriptInterface
