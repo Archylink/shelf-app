@@ -199,7 +199,7 @@ button{touch-action:manipulation}
     <div class="card gcard" data-game="dng"><div class="title">💿 Подземелье дисков</div><div class="meta">Рогалик: 3 этажа, 3 босса, 6 видов оружия, 20 реликвий. Комнаты с волнами, магазин, сокровищницы. Души после смерти открывают улучшения. <span id="bestDng"></span></div></div>
     <div class="card gcard" data-game="pkr"><div class="title">Покер полки</div><div class="meta">Карточный рогалик: собирай покерные комбинации из дисков, покупай значки с бонусами, побеждай боссов. Игры с твоей полки становятся золотыми дисками. <span id="bestPkr"></span></div></div>
     <div class="card gcard" data-game="drf"><div class="title">Дальний рейс</div><div class="meta">Космический рогалик в реальном времени: доставь Архив через четыре сектора. Питание систем, экипаж, оружие, события и босс. Рисовано пикселями. <span id="bestDrf"></span></div></div>
-    <div class="card gcard" data-game="tvr"><div class="title">Хроника Таврики</div><div class="meta">Историческая ролёвка с видом сверху: Крым около 1450 года, генуэзская Солдайя, деревня, лес и берег. Диалоги с выбором, навыки от практики, голод, день и ночь, жители со своими делами. <span id="bestTvr"></span></div></div>
+    <div class="card gcard" data-game="tvr"><div class="title">Хроника Таврики</div><div class="meta">Историческая ролёвка с видом сверху: Крым около 1450 года, генуэзская Солдайя, деревня, лес и берег. Диалоги с выбором, навыки от практики, голод, день и ночь, жители со своими делами. Горный хутор, волчья стая, греческое селение Кастропуло и выбор, чью сторону принять. <span id="bestTvr"></span></div></div>
     <div class="meta" style="text-align:center;margin-top:14px">Новые игры появятся здесь</div>
   </section>
 
@@ -5244,6 +5244,7 @@ function openTavrika(){
     road(14,44,61,44); road(60,41,60,50); road(23,11,23,44); road(11,34,24,34); road(11,33,11,34); road(19,33,19,34); road(13,39,13,44); road(27,39,27,44); road(16,44,16,44);
     for(let y=41;y<=43;y++){ if(get(59,y)!==WAT){ set(59,y,PATH); set(60,y,PATH); set(61,y,PATH); } }
     set(23,10,G0); set(24,10,G0);
+    clearArea(32,11,38,16); road(25,13,36,13);
   })();
   const SOLID=new Set([WAT,WALL,TREE,ROCK,ROOF,THATCH,HW,DOOR,WELL,CWALL]);
 
@@ -5308,7 +5309,12 @@ function openTavrika(){
     monk:{skin:'#e0b08a',hair:'#4a3a2a',tunic:'#3a2e24',pants:'#2a1f16',belt:'#a58352'},
     boy:{skin:'#e8b890',hair:'#a8702a',tunic:'#9a6a3a',pants:'#5a4a3a'},
     bandit:{skin:'#d9a67e',hair:'#2a1a10',tunic:'#6a3a2a',pants:'#2a2a2a',belt:'#2a1f16',hat:'#3a2a1a'},
-    boss:{skin:'#c99266',hair:'#1a1410',tunic:'#2a2a3a',pants:'#1a1a22',belt:'#c9a24a',hat:'#7a7a84'}
+    boss:{skin:'#c99266',hair:'#1a1410',tunic:'#2a2a3a',pants:'#1a1a22',belt:'#c9a24a',hat:'#7a7a84'},
+    elder:{skin:'#d9a67e',hair:'#e6e6e6',tunic:'#7a5a3a',pants:'#4a3a2a',belt:'#2a1f16'},
+    shep:{skin:'#c99266',hair:'#2a1a10',tunic:'#8a7a5a',pants:'#4a4a3a',belt:'#5a3a1e',hat:'#c9b46a'},
+    feo:{skin:'#e0b08a',hair:'#3a2a1a',tunic:'#2a5a8a',pants:'#3a3a44',belt:'#e6c75a',hat:'#8a8a94'},
+    woman:{skin:'#d9a67e',hair:'#bdbdbd',tunic:'#6a3a4a',pants:'#3a2a2a',belt:'#a58352',hat:'#2a2a2a'},
+    smug:{skin:'#c99266',hair:'#1a1410',tunic:'#5a2a4a',pants:'#2a2a2a',belt:'#c9a24a',hat:'#3a2a3a'}
   };
 
   /* ----- сущности ----- */
@@ -5324,6 +5330,7 @@ function openTavrika(){
     {id:'sign1',k:'sign',x:58,y:42,name:'Указатель'},
     {id:'sign2',k:'sign',x:25,y:12,name:'Указатель'},
     {id:'cave',k:'cave',x:23,y:10,name:'Пещера'},
+    {id:'pass',k:'pass',x:36,y:13,name:'Горная тропа'},
     {id:'home',k:'home',x:27,y:38,name:'Твой дом'},
     {id:'s1',k:'item',kind:'shell',x:30,y:shoreY(30)},{id:'s2',k:'item',kind:'shell',x:50,y:shoreY(50)},{id:'s3',k:'item',kind:'shell',x:36,y:shoreY(36)+1},
     {id:'h1',k:'item',kind:'herb',x:28,y:22},{id:'h2',k:'item',kind:'herb',x:38,y:26},{id:'h3',k:'item',kind:'herb',x:14,y:26}
@@ -5334,7 +5341,7 @@ function openTavrika(){
 
   /* ----- состояние ----- */
   const SK={speech:'Речь',stealth:'Скрытность',fit:'Выносливость',melee:'Бой'};
-  const fresh=()=>({x:24*TS+8,y:42*TS+14,dir:'down',coins:3,hunger:90,t:480,inv:{bread:1,letter:0,shells:0,herbs:0,knife:0,club:0,sword:0,gamb:0,chain:0,bandage:0},q:{letter:0,shells:0,herbs:0,bandits:0},flags:{},picked:{},sk:{speech:{l:1,x:0},stealth:{l:1,x:0},fit:{l:1,x:0},melee:{l:1,x:0}},rep:{gen:0,vil:0},dist:0,sleeps:0,hp:40,hpMax:40,st:100,atkT:0,stun:0,inv_t:0,hurt:0,stD:0,eq:{w:'fists',a:'none'},dead:{},map:'world'});
+  const fresh=()=>({x:24*TS+8,y:42*TS+14,dir:'down',coins:3,hunger:90,t:480,inv:{bread:1,letter:0,shells:0,herbs:0,knife:0,club:0,sword:0,gamb:0,chain:0,bandage:0,salt:0,wine:0},q:{letter:0,shells:0,herbs:0,bandits:0,pass:0,shep:0,cross:0},flags:{},picked:{},sk:{speech:{l:1,x:0},stealth:{l:1,x:0},fit:{l:1,x:0},melee:{l:1,x:0}},rep:{gen:0,vil:0,feo:0},dist:0,sleeps:0,hp:40,hpMax:40,st:100,atkT:0,stun:0,inv_t:0,hurt:0,stD:0,eq:{w:'fists',a:'none'},dead:{},map:'world'});
   let S=fresh();
   try{ const s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s&&s.inv){ const f=fresh(); S=Object.assign(f,s); for(const k of ['inv','q','flags','picked','sk','rep','eq','dead']) S[k]=Object.assign(f[k],s[k]||{}); } }catch(e){}
   const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} };
@@ -5357,6 +5364,8 @@ function openTavrika(){
     if(!S.inv.sword) o.push({t:'Короткий меч — 35 монет (урон 11)',f:()=>{ if(S.coins<35){ toast('Не хватает монет'); return shopNode(); } S.coins-=35; S.inv.sword=1; S.eq.w='sword'; toast('Куплен меч'); return shopNode(); }});
     if(S.inv.shells>0) o.push({t:'Продать ракушку — 2 монеты',f:()=>{ S.inv.shells--; S.coins+=2; return shopNode(); }});
     if(S.inv.herbs>0) o.push({t:'Продать пучок трав — 2 монеты',f:()=>{ S.inv.herbs--; S.coins+=2; return shopNode(); }});
+    o.push({t:'Вино — 5 монет',f:()=>{ if(S.coins<5){ toast('Не хватает монет'); return shopNode(); } S.coins-=5; S.inv.wine++; toast('Куплено вино'); return shopNode(); }});
+    if(S.inv.salt>0) o.push({t:'Продать мешок соли — 22 монеты',f:()=>{ S.inv.salt--; S.coins+=22; return shopNode(); }});
     o.push({t:'Уйти'});
     return say(n,'Смотри, что у меня есть. Монет у тебя: '+S.coins+'.',o);
   }
@@ -5388,16 +5397,72 @@ function openTavrika(){
       if(S.q.letter===1&&S.inv.letter) return say(n,'Письмо от мельника? Покажи. Печать цела. Хорошо. Держи плату.',[{t:'Отдать письмо',f:()=>{ S.inv.letter=0; S.q.letter=2; S.coins+=15; S.rep.gen+=2; xp('speech',2); toast('+15 монет. Репутация у Генуи выросла'); return say(n,'Скоро в округе станет неспокойно. Заходи позже, у меня будет работа для надёжного человека.'); }}]);
       if(S.q.letter===2&&S.q.bandits===0) return say(n,'Хорошо, что зашёл. Разбойники грабят обозы на северной тропе, а логово у них в пещере над деревней. Завал мои люди уже разобрали. Убей главаря: сорок монет и кольчуга твои.',[{t:'Берусь',f:()=>{ S.q.bandits=1; S.flags.cave=1; toast('Задание: разбойники в пещере'); return say(n,'Иди к деревне и дальше по тропе на север. Бери повязки, они лечат. И не лезь в бой с пустой выносливостью.'); }},{t:'Нужно подготовиться'}]);
       if(S.q.bandits===1){ if(S.flags.bossDead) return say(n,'Главарь убит? Люди видели дым над пещерой. Держи награду.',[{t:'Принять награду',f:()=>{ S.q.bandits=2; S.coins+=40; S.inv.chain=1; S.eq.a='chain'; S.rep.gen+=3; xp('speech',2); toast('+40 монет и кольчуга'); return say(n,'Тропа безопасна. Генуя этого не забудет.'); }}]); return say(n,'Главарь ещё жив. Пещера к северу от деревни.'); }
-      if(S.q.bandits===2) return say(n,'Тропа спокойна. Спасибо тебе. Другие дела будут позже.');
+      if(S.q.bandits===2&&S.q.pass===0) return say(n,'Теперь дело потоньше. Феодоро держит перевал над хутором Каменная Балка и что-то там затевает. Поднимись по тропе севернее деревни, поговори со старейшиной хутора и с дозорными у башни. Вернись и расскажи, что услышал. Заплачу.',[{t:'Берусь',f:()=>{ S.q.pass=1; toast('Задание: вести с перевала'); return say(n,'Тропа начинается на лесной дороге севернее деревни. Волки там злые, береги себя.'); }},{t:'Позже'}]);
+      if(S.q.pass===1){
+        if(!(S.flags.elderTalk&&S.flags.georgyDone)) return say(n,'Жду вестей с перевала. Поговори и со старейшиной хутора, и с дозорными у башни.');
+        const g=S.flags.georgy, fin=(c,r,t,tt)=>{ S.q.pass=2; S.coins+=c; S.rep.gen+=r; xp('speech',2); toast(tt); return say(n,t); };
+        if(g==='spy') return say(n,'Рассказывай, что узнал.',[{t:'Доложить всё',f:()=>fin(30,3,'Два десятка людей, застава недостроена, подкрепление к весне. Это именно то, что нужно. Генуя тебя ценит.','+30 монет. Репутация у Генуи выросла')}]);
+        if(g==='neutral') return say(n,'Рассказывай, что узнал.',[{t:'Доложить, что видел',f:()=>fin(15,1,'Мало, но честно. Получишь пятнадцать монет.','+15 монет')}]);
+        return say(n,'Дозорные Феодоро заранее знали, сколько наших стоит на стене. Ты ничего об этом не слышал?',[
+          {t:'Признаться, что продал сведения',f:()=>{ S.q.pass=2; S.rep.gen-=2; toast('Репутация у Генуи упала'); return say(n,'Честность лучше лжи, но Генуя запомнит. Награды не будет. Иди.'); }},
+          {t:'Соврать, что ничего не знаешь',f:()=>{ const ch=.25+.12*lvl('speech'); S.q.pass=2; if(Math.random()<ch){ S.coins+=15; xp('speech',3); toast('Тебе поверили: +15 монет'); return say(n,'Значит, утечка не от тебя. Вот пятнадцать за дорогу.'); } S.rep.gen-=4; xp('speech',1); toast('Тебе не поверили'); return say(n,'Лжец. Я не слепой. Вон отсюда, и не показывайся у стены.'); }}]);
+      }
+      if(S.q.pass===2) return say(n,'Перевал под присмотром, а ты нам помог. Другие дела будут позже.');
       return say(n,'Дел у меня к тебе нет. Мельник что-то хотел, спроси его.'); }
+    if(id==='prok'){ const n='Старейшина Прокопий', o=[];
+      if(!S.flags.elderTalk) o.push({t:'Что за дозорные в башне?',f:()=>{ S.flags.elderTalk=1; if(S.q.pass===1) toast('Узнано о дозорных Феодоро'); return say(n,'Георгий пришёл с отрядом в начале осени. Ставят вешки, считают подводы на дороге. Князь Феодоро ждёт, что Генуя полезет на перевал, и готовит встречу. Больше я не скажу: мне здесь жить.'); }});
+      if(S.q.shep===0) o.push({t:'Нужна помощь?',f:()=>say(n,'Пастух Алексей ушёл на южный склон за овцами и не вернулся. Там ходит стая, а вожак у них огромный. Найдёшь его живым, отблагодарю чем смогу.',[{t:'Найду',f:()=>{ S.q.shep=1; toast('Задание: пропавший пастух'); return say(n,'Южный склон, юго-западнее хутора. Иди с оружием и в броне.'); }},{t:'Не сейчас'}])});
+      if(S.q.shep===1&&S.flags.shepSaved) o.push({t:'Алексей жив, вожак убит',f:()=>{ S.q.shep=2; S.coins+=20; S.inv.bandage+=2; S.rep.vil+=3; xp('speech',2); toast('+20 монет и 2 повязки'); return say(n,'Алексей дома, овцы целы. Хутор тебя не забудет. Вот тебе от нас.'); }});
+      o.push({t:'Уйти'});
+      return say(n,S.q.shep===2?'Мир твоему дому. Алексей рассказывает о тебе каждому, кто слушает.':S.q.shep===1?'Алексей ещё не вернулся? Южный склон, юго-западнее хутора.':'Здравствуй, путник. Здесь редко бывают чужие.',o); }
+    if(id==='alex'){ const n='Пастух Алексей';
+      if(!S.flags.alphaDead) return say(n,'Тише! Они ещё рядом, а вожак огромный. Не подходи с пустыми руками, ради всего святого.');
+      if(!S.flags.shepSaved){ S.flags.shepSaved=1; toast('Пастух спасён. Вернись к старейшине'); return say(n,'Ушли... Спасибо тебе. Я уж думал, что здесь и останусь. Передай Прокопию, что я жив, а сам дойду потихоньку.'); }
+      return say(n,'Дойду потихоньку. Спасибо тебе.'); }
+    if(id==='georgy'){ const n='Георгий, дозорный Феодоро';
+      if(S.q.pass!==1||S.flags.georgyDone) return say(n,S.flags.georgy==='sold'?'Мы с тобой не знакомы. Запомни это.':'Проходи мимо башни. У нас здесь не торг.');
+      const night=isNight(), o=[];
+      o.push({t:'Просто иду мимо',f:()=>{ S.flags.georgyDone=1; S.flags.georgy='neutral'; return say(n,'Ну и иди. Только не торчи под башней.'); }});
+      o.push({t:'Подслушать разговор дозорных',f:()=>{ const ch=.3+.12*lvl('stealth')+(night?.15:0); if(Math.random()<ch){ S.flags.georgyDone=1; S.flags.georgy='spy'; xp('stealth',3); toast('Ты узнал, что нужно консулу'); return say('Подслушано','Дозорные говорят вполголоса: застава недостроена, людей два десятка, подкрепление придёт к весне. Князь ждёт, что Генуя пойдёт на перевал только после зимы.'); } xp('stealth',1); S.coins=Math.max(0,S.coins-4); S.rep.feo--; toast('Заметили: штраф 4 монеты'); return say(n,'Эй! Чего ты там шаришь? Штраф четыре монеты. Ещё раз увижу, пеняй на себя.'); }});
+      o.push({t:'Продать сведения о гарнизоне Солдайи',f:()=>{ S.flags.georgyDone=1; S.flags.georgy='sold'; S.coins+=30; S.rep.feo+=2; S.rep.gen-=3; toast('+30 монет. Репутация у Генуи упала'); return say(n,'Умный человек. Тридцать монет, и мы друг друга не видели.'); }});
+      o.push({t:'Уйти'});
+      return say(n,'Ты не из дозорных и не с хутора. Чего надо у башни?',o); }
+    if(id==='feof'){ const n='Феофано';
+      if(S.q.cross===0) return say(n,'Ты, чужой, иди сюда. Видишь крест на скале? Его поставили трое наших рыбаков, когда решили бросить вино. Поклялись перед всей деревней. А крест, говорят, уже покосился. Сходи глянь, потом расскажешь.',[{t:'Схожу',f:()=>{ S.q.cross=1; toast('Задание: крест на скале'); return say(n,'Тропа вверх по склону, правее церкви. Лезь осторожно, там круто.'); }},{t:'Расскажи о селе',f:()=>say(n,'Кастропуло стоит здесь с тех пор, как греки пришли с моря. Старая башня на западе, развалины: деды звали её «крепостенкой», по ней и село назвали. Генуя берёт пошлину, Феодоро её ругает, а мы ловим рыбу.')},{t:'Не сейчас'}]);
+      if(S.q.cross===1){
+        if(S.flags.crossEnd==='quit') return say(n,'Никос бросил? Хвала Богородице. Вот тебе от меня.',[{t:'Принять',f:()=>{ S.q.cross=2; S.coins+=12; S.inv.bandage++; S.rep.vil+=2; toast('+12 монет и повязка'); return say(n,'Крест теперь стоит не зря. Хоть один клятву сдержал.'); }}]);
+        if(S.flags.crossEnd==='drink') return say(n,'Он опять пил? А ты ему ещё и вина принёс! Ну что с вами делать. Вот хлеб, закуси.',[{t:'Принять',f:()=>{ S.q.cross=2; S.inv.bread+=2; S.rep.vil--; toast('+2 хлеба. В селе тобой недовольны'); return say(n,'Крест стоит, а клятва, видно, висит на нём, как бельё на верёвке.'); }}]);
+        return say(n,S.flags.crossSeen?'Видел крест? Теперь поговори с Никосом. Он у нас главный клятвенник.':'Поднимись к кресту и посмотри, не покосился ли он.');
+      }
+      return say(n,'Крест стоит, море шумит. Живи, чужой, и заходи.'); }
+    if(id==='melet'){ return say('Мелетий, староста',pick(['Пошлину Генуе платим, подать Феодоро тоже платим. Рыбы на всех хватает, а вот терпения нет.','Башню на западе давно растащили на дома. Говорят, внизу, под камнями, ещё что-то есть.','Церковь у нас старая, но звон в ней громкий. Слышно даже на воде.']),[{t:'Понятно'}]); }
+    if(id==='nikos'){ const n='Рыбак Никос';
+      if(S.q.cross===1&&S.flags.crossSeen&&!S.flags.crossEnd){ const o=[];
+        o.push({t:'Убедить бросить',f:()=>{ const ch=.3+.12*lvl('speech'); if(Math.random()<ch){ S.flags.crossEnd='quit'; xp('speech',3); toast('Никос согласился'); return say(n,'Ладно. Ради креста. Только будь рядом, если дрогну.'); } xp('speech',1); return say(n,'Не учи меня. Я клялся, я и знаю, когда нарушать.'); }});
+        if(S.inv.wine>0) o.push({t:'Отдать ему вино',f:()=>{ S.inv.wine--; S.flags.crossEnd='drink'; S.coins+=8; toast('+8 монет'); return say(n,'Ну спасибо. Крест видит, а я скромно. Держи за беспокойство.'); }});
+        o.push({t:'Уйти'});
+        return say(n,'Феофано послала? Знаю, знаю. Крест покосился, кувшины пусты. Я не пью, я только нюхаю. Чего пришёл?',o); }
+      if(S.flags.crossEnd==='quit') return say(n,'Крест держится, и я держусь. Пока.');
+      if(S.flags.crossEnd==='drink') return say(n,'Кувшин пуст. Крест ничего не видел.');
+      return say(n,'Рыба нынче крупная. Вот только вина в доме нет.'); }
+    if(id==='dimitris'){ const n='Димитрис, перекупщик', o=[], left=3-(S.flags.saltN||0);
+      if(left>0) o.push({t:'Купить мешок соли — 10 монет (осталось '+left+')',f:()=>{ if(S.coins<10){ toast('Не хватает монет'); return talk('dimitris'); } S.coins-=10; S.inv.salt++; S.flags.saltN=(S.flags.saltN||0)+1; toast('Куплен мешок соли'); return talk('dimitris'); }});
+      o.push({t:'Откуда соль?',f:()=>say(n,'Из степных озёр. Генуя берёт на торгу втрое, а я возвращаю цену людям. В Солдайе у Пьетро мешок уходит за двадцать с лишним.')});
+      o.push({t:'Уйти'});
+      return say(n,'Тихо. Я не торгую солью, я её просто иногда нахожу.',o); }
     return null;
   }
   function interact(e){
     if(!e||DLG||menuOpen) return;
     if(e.k==='npc'){ openDlg(talk(e.id)); }
     else if(e.k==='item'){ S.picked[e.id]=1; if(e.kind==='shell'){ S.inv.shells++; toast('Ракушка '+S.inv.shells); } else { S.inv.herbs++; toast('Пучок чабреца '+S.inv.herbs); } xp('fit',1); }
-    else if(e.k==='sign'){ openDlg(say(e.name,e.id==='sign1'?'Солдайя. Владение Генуэзской республики. Пошлина с каждого, кто входит.':'Тропа к пещере. Дальше осыпь.')); }
+    else if(e.k==='sign'){ openDlg(say(e.name,e.id==='sign1'?'Солдайя. Владение Генуэзской республики. Пошлина с каждого, кто входит.':e.id==='sign3'?'Каменная Балка. Хутор под рукой князя Феодоро. Чужим дорога только с делом.':e.id==='ruin'?'Остатки старой башни. Дедушки называли её «крепостенкой»: по ней село и зовут Кастропуло. Говорят, её строили ещё при ромеях.':'Тропа к пещере. Дальше осыпь.')); }
     else if(e.k==='cave'){ caveInteract(); } else if(e.k==='chest'){ openChest(e); } else if(e.k==='exit'){ enterMap('world',23,12); }
+    else if(e.k==='pass'){ openDlg(say('Горная тропа','Тропа ведёт на перевал, к хутору Каменная Балка. Там хозяйничают люди князя Феодоро, а в лесу водятся волки. Идти без оружия и брони не стоит.',[{t:'Подняться',f:()=>{ enterMap('pass',24,33); return null; }},{t:'Не сейчас'}])); }
+    else if(e.k==='down'){ enterMap('world',35,14); }
+    else if(e.k==='trail'){ openDlg(say('Тропа к морю','Крутая тропа ведёт вниз, к морю. Внизу греческое селение Кастропуло: рыбаки, старая церковь и развалины византийской башни.',[{t:'Спуститься',f:()=>{ enterMap('kas',36,19); return null; }},{t:'Не сейчас'}])); }
+    else if(e.k==='up'){ enterMap('pass',43,33); }
+    else if(e.k==='cross'){ if(S.q.cross>=1){ S.flags.crossSeen=1; openDlg(say('Крест','Деревянный крест на вершине скалы покосился, будто устал стоять. У подножия пустые глиняные кувшины. Внизу видно море и крышу церкви.')); } else openDlg(say('Крест','Простой деревянный крест на вершине скалы. Видно далеко: море, берег и крыши внизу. Кто и зачем его здесь поставил, неясно.')); }
     else if(e.k==='home'){ openDlg(say('Твой дом','Лечь спать до утра? Сон лечит и сохраняет прогресс.',[{t:'Спать',f:()=>{ const d=Math.floor(S.t/1440), h=hour(); S.t=(d+(h>=7?1:0))*1440+420; S.hunger=Math.max(5,S.hunger-15); S.sleeps++; S.hp=S.hpMax; S.st=100; save(); toast('Ты выспался. Утро'); return null; }},{t:'Не сейчас'}])); }
   }
 
@@ -5497,9 +5562,12 @@ function openTavrika(){
   const ETYPE={
     wolf:{n:'Волк',hp:12,spd:52,dmg:6,range:16,wind:.4,cool:.8,aggro:90,leash:220,coin:[0,0]},
     bandit:{n:'Разбойник',hp:30,spd:35,dmg:9,range:20,wind:.6,cool:1.15,aggro:75,leash:200,coin:[3,6]},
-    boss:{n:'Главарь',hp:90,spd:32,dmg:14,range:24,wind:.65,cool:1.05,aggro:120,leash:300,coin:[15,20]}
+    boss:{n:'Главарь',hp:90,spd:32,dmg:14,range:24,wind:.65,cool:1.05,aggro:120,leash:300,coin:[15,20]},
+    alpha:{n:'Вожак стаи',hp:46,spd:58,dmg:10,range:18,wind:.45,cool:.85,aggro:100,leash:240,coin:[0,0]}
   };
   const SPAWN={
+    kas:[{id:'kb1',t:'bandit',x:6,y:5}],
+    pass:[{id:'p1',t:'wolf',x:11,y:27},{id:'p2',t:'wolf',x:14,y:32},{id:'p3',t:'wolf',x:6,y:27},{id:'alpha',t:'alpha',x:10,y:32},{id:'pb1',t:'bandit',x:34,y:26}],
     world:[{id:'w1',t:'wolf',x:30,y:30},{id:'w2',t:'wolf',x:41,y:34},{id:'w3',t:'wolf',x:44,y:16},{id:'w4',t:'wolf',x:12,y:20},{id:'b1',t:'bandit',x:38,y:42},{id:'b2',t:'bandit',x:47,y:45}],
     cave:[{id:'c1',t:'bandit',x:12,y:12},{id:'c2',t:'bandit',x:19,y:12},{id:'c3',t:'wolf',x:15,y:14},{id:'c4',t:'bandit',x:11,y:3},{id:'boss',t:'boss',x:16,y:3}]
   };
@@ -5509,12 +5577,69 @@ function openTavrika(){
   const WORLD={M,MW,MH};
   const ENTS_C=[{id:'exit',k:'exit',x:16,y:25,name:'Выход'},{id:'ch1',k:'chest',x:2,y:10,loot:'minor'},{id:'ch2',k:'chest',x:16,y:2,loot:'boss',need:'bossDead'},
     {id:'t1',k:'torch',x:13,y:23},{id:'t2',k:'torch',x:18,y:23},{id:'t3',k:'torch',x:10,y:11},{id:'t4',k:'torch',x:21,y:11},{id:'t5',k:'torch',x:9,y:2},{id:'t6',k:'torch',x:22,y:2},{id:'t7',k:'torch',x:1,y:13},{id:'t8',k:'torch',x:15,y:18}];
+  const ENTS_P=[
+    {id:'down',k:'down',x:24,y:35,name:'Спуск'},
+    {id:'prok',k:'npc',x:13,y:17,name:'Старейшина Прокопий',pal:'elder',dir:'down'},
+    {id:'alex',k:'npc',x:8,y:30,name:'Пастух Алексей',pal:'shep',dir:'right'},
+    {id:'georgy',k:'npc',x:39,y:18,name:'Георгий, дозорный',pal:'feo',dir:'down'},
+    {id:'dimitris',k:'npc',x:27,y:22,name:'Димитрис, перекупщик',pal:'smug',dir:'left'},
+    {id:'sign3',k:'sign',x:23,y:30,name:'Указатель'},
+    {id:'pc1',k:'chest',x:5,y:33,loot:'minor'},
+    {id:'kas',k:'trail',x:44,y:33,name:'Тропа к морю'}
+  ];
+  const PASS=(function(){
+    const sv=[M,MW,MH,MAPNAME]; MW=48; MH=38; M=new Uint8Array(MW*MH); MAPNAME='pass';
+    for(let y=0;y<MH;y++) for(let x=0;x<MW;x++) set(x,y,hash(x+5,y+11)<.1?FL:G0);
+    for(let y=0;y<6;y++) for(let x=0;x<MW;x++){ const p=(6-y)/6; if(y<2||hash(x+2,y+5)<p*.85) set(x,y,ROCK); else if(hash(x,y+9)<.3) set(x,y,TREE); }
+    for(let y=6;y<MH;y++) for(let x=0;x<MW;x++){ const n=Math.sin(x*.31+1.7)*Math.cos(y*.27+.5)+Math.sin((x+y)*.13); if(n>.7&&hash(x+8,y+4)<.85) set(x,y,TREE); }
+    for(let y=0;y<MH;y++) for(const x of [0,1,MW-2,MW-1]) set(x,y,ROCK);
+    for(let x=0;x<MW;x++){ set(x,MH-2,ROCK); set(x,MH-1,ROCK); }
+    for(let y=6;y<=30;y++){ set(30,y,WAT); set(31,y,WAT); }
+    clearArea(4,12,22,24); clearArea(33,5,46,20); clearArea(18,18,30,36);
+    for(let x=34;x<=44;x++){ set(x,6,WALL); set(x,15,WALL); } for(let y=6;y<=15;y++){ set(34,y,WALL); set(44,y,WALL); }
+    for(let y=7;y<=14;y++) for(let x=35;x<=43;x++) set(x,y,FLOOR);
+    set(39,15,FLOOR);
+    house(8,13,4,THATCH,9); house(14,13,4,THATCH,15); set(19,17,WELL);
+    for(let y=21;y<=23;y++) for(let x=4;x<=9;x++) set(x,y,FIELD);
+    road(24,19,24,35); road(9,19,38,19); road(9,16,9,19); road(15,16,15,19); road(38,16,38,19); road(5,29,23,29); road(5,31,5,33); road(26,33,44,33);
+    for(const x of [30,31]) for(const y of [19,20]) set(x,y,PATH);
+    for(const s of SPAWN.pass) for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ const t=get(s.x+dx,s.y+dy); if(t===TREE||t===ROCK||t===WAT) set(s.x+dx,s.y+dy,G0); }
+    for(const e of ENTS_P){ const t=get(e.x,e.y); if(SOLID.has(t)) set(e.x,e.y,G0); }
+    const P={M,MW,MH}; M=sv[0]; MW=sv[1]; MH=sv[2]; MAPNAME=sv[3]; return P; })();
+  const ENTS_K=[
+    {id:'up',k:'up',x:37,y:19,name:'Тропа наверх'},
+    {id:'feof',k:'npc',x:11,y:15,name:'Феофано',pal:'woman',dir:'down'},
+    {id:'melet',k:'npc',x:18,y:15,name:'Мелетий, староста',pal:'elder',dir:'down'},
+    {id:'nikos',k:'npc',x:21,y:23,name:'Рыбак Никос',pal:'fisher',dir:'right'},
+    {id:'cross',k:'cross',x:28,y:4,name:'Крест'},
+    {id:'ruin',k:'sign',x:5,y:9,name:'Развалины'},
+    {id:'kc1',k:'chest',x:5,y:5,loot:'minor'}
+  ];
+  const KAS=(function(){
+    const sv=[M,MW,MH,MAPNAME]; MW=40; MH=32; M=new Uint8Array(MW*MH); MAPNAME='kas';
+    for(let y=0;y<MH;y++) for(let x=0;x<MW;x++) set(x,y,hash(x+3,y+17)<.1?FL:G0);
+    for(let y=0;y<3;y++) for(let x=0;x<MW;x++) set(x,y,ROCK);
+    for(let y=3;y<27;y++) for(let x=0;x<MW;x++){ const n=Math.sin(x*.33+.4)*Math.cos(y*.29+1)+Math.sin((x+y)*.15); if(n>.75&&hash(x+1,y+6)<.85) set(x,y,TREE); }
+    for(let y=0;y<MH;y++) for(const x of [0,MW-1]) set(x,y,ROCK);
+    for(let y=27;y<MH;y++) for(let x=0;x<MW;x++) set(x,y,WAT);
+    for(let y=24;y<27;y++) for(let x=1;x<MW-1;x++) set(x,y,SAND);
+    for(let y=2;y<=13;y++) for(let x=22;x<=34;x++) set(x,y,ROCK);
+    clearArea(3,9,21,23); clearArea(22,14,38,23);
+    for(let x=3;x<=8;x++){ set(x,3,WALL); set(x,7,WALL); } for(let y=3;y<=7;y++){ set(3,y,WALL); set(8,y,WALL); }
+    for(let y=4;y<=6;y++) for(let x=4;x<=7;x++) set(x,y,FLOOR);
+    set(5,7,FLOOR); set(6,7,WALL); set(7,7,WALL);
+    house(10,11,4,THATCH,11); house(16,11,4,THATCH,17); house(13,15,3,ROOF,14); set(9,16,WELL);
+    road(5,8,5,19); road(5,19,36,19); road(11,14,11,19); road(17,14,17,19); road(14,18,14,19); road(20,21,20,24); road(28,4,28,18);
+    for(const s of SPAWN.kas) for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ const t=get(s.x+dx,s.y+dy); if(t===TREE||t===ROCK||t===WAT) set(s.x+dx,s.y+dy,G0); }
+    for(const e of ENTS_K){ const t=get(e.x,e.y); if(SOLID.has(t)) set(e.x,e.y,G0); }
+    const P={M,MW,MH}; M=sv[0]; MW=sv[1]; MH=sv[2]; MAPNAME=sv[3]; return P; })();
+  const MAPD={world:WORLD,cave:CAVE,pass:PASS,kas:KAS}, ENTD={world:ENTS_W,cave:ENTS_C,pass:ENTS_P,kas:ENTS_K}, MAPN={world:'Окрестности Солдайи',cave:'Пещера разбойников',pass:'Хутор Каменная Балка',kas:'Кастропуло'};
   let ENEMIES=[], FX=[], btnBlk=false;
   const fxAdd=(x,y,txt,col)=>FX.push({x,y,txt,col,t:.8});
   function spawnEnemies(){ ENEMIES=(SPAWN[MAPNAME]||[]).filter(s=>!S.dead[s.id]).map(s=>{ const D=ETYPE[s.t]; return {id:s.id,t:s.t,x:s.x*TS+8,y:s.y*TS+12,home:{x:s.x*TS+8,y:s.y*TS+12},hp:D.hp,max:D.hp,st:'idle',tm:0,stun:0,face:'left',fr:0,hit:0,n:0,heavy:false}; }); }
-  function enterMap(name,x,y){ const D=name==='cave'?CAVE:WORLD; M=D.M; MW=D.MW; MH=D.MH; MAPNAME=name; S.map=name; ENTS=name==='cave'?ENTS_C:ENTS_W; FX=[]; if(x!=null){ S.x=x*TS+8; S.y=y*TS+12; } spawnEnemies(); DLG=DLG; if(x!=null) toast(name==='cave'?'Пещера разбойников':'Окрестности Солдайи'); }
+  function enterMap(name,x,y){ const D=MAPD[name]||WORLD; M=D.M; MW=D.MW; MH=D.MH; MAPNAME=name; S.map=name; ENTS=ENTD[name]||ENTS_W; FX=[]; if(x!=null){ S.x=x*TS+8; S.y=y*TS+12; } spawnEnemies(); if(x!=null) toast(MAPN[name]||''); }
   function migrate(){ if(S.q.letter>=1&&!S.inv.club&&!S.inv.knife&&!S.inv.sword) S.inv.club=1; if(!S.eq||!WPN[S.eq.w]) S.eq={w:'fists',a:'none'}; if(S.inv.club&&S.eq.w==='fists') S.eq.w='club'; if(S.hpMax<40) S.hpMax=40; if(S.hp>S.hpMax) S.hp=S.hpMax; }
-  const labelOf=e=>e.k==='cave'?(S.flags.cave?'Войти':'Осмотреть'):({npc:'Говорить',item:'Взять',sign:'Читать',home:'Лечь спать',chest:'Открыть',exit:'Выйти'})[e.k];
+  const labelOf=e=>e.k==='cave'?(S.flags.cave?'Войти':'Осмотреть'):({npc:'Говорить',item:'Взять',sign:'Читать',home:'Лечь спать',chest:'Открыть',exit:'Выйти',pass:'Подняться',down:'Спуститься',trail:'Спуститься',up:'Подняться',cross:'Осмотреть'})[e.k];
   function caveInteract(){ if(!S.flags.cave) return openDlg(say('Пещера','Вход завален камнями, из-под них тянет сыростью. Сейчас сюда не пройти.')); openDlg(say('Пещера','Тёмный ход ведёт вглубь. Оттуда тянет холодом и дымом. Идти туда без оружия и брони не стоит.',[{t:'Войти',f:()=>{ enterMap('cave',15,23); return null; }},{t:'Не сейчас'}])); }
   function openChest(e){
     if(S.picked[e.id]) return openDlg(say('Сундук','Пусто.'));
@@ -5576,6 +5701,7 @@ function openTavrika(){
     return any;
   }
   function killE(e){ S.dead[e.id]=1; ENEMIES=ENEMIES.filter(x=>x!==e); tsnd('kill'); const D=ETYPE[e.t]; const c=D.coin[1]?ri(D.coin[0],D.coin[1]):0; if(c){ S.coins+=c; toast(D.n+' повержен: +'+c+' монет'); } else toast(D.n+' повержен');
+    if(e.t==='alpha'){ S.flags.alphaDead=1; xp('melee',2); toast('Вожак стаи повержен'); }
     if(e.t==='boss'){ S.flags.bossDead=1; xp('melee',3); toast('Главарь повержен. Сундук в зале теперь доступен.'); } }
   function updateCombat(dt){
     for(const f of FX) f.t-=dt; FX=FX.filter(f=>f.t>0);
@@ -5606,6 +5732,7 @@ function openTavrika(){
   function drawEnemy(e){
     const x=Math.round(e.x-cam.x), y=Math.round(e.y-cam.y), boss=e.t==='boss';
     if(e.t==='wolf') drawWolf(x,y,e);
+    else if(e.t==='alpha'){ ctx.save(); ctx.translate(x,y); ctx.scale(1.35,1.35); drawWolf(0,0,e); ctx.restore(); }
     else { const pal=boss?PAL.boss:PAL.bandit; ctx.save(); ctx.translate(x,y); if(boss) ctx.scale(1.25,1.25); drawChar(ctx,0,0,e.face,Math.floor(e.fr),pal,e.st==='chase'); const sd=e.face==='left'?-9:8, up=e.st==='wind'?-5:0; ctx.fillStyle='#4a3a2a'; ctx.fillRect(sd,-11+up,2,7); ctx.fillStyle='#8a8a94'; if(boss) ctx.fillRect(sd-1,-13+up,4,3); ctx.restore(); }
     if(e.hit>0){ ctx.fillStyle='rgba(255,255,255,.5)'; ctx.fillRect(x-6,y-15,12,15); }
     if(e.st==='wind'){ ctx.fillStyle='#000'; ctx.fillRect(x-1,y-(boss?29:23),4,7); ctx.fillStyle=e.heavy?'#ff9a3a':'#ff3a3a'; ctx.fillRect(x,y-(boss?28:22),2,4); ctx.fillRect(x,y-(boss?23:17),2,2); }
@@ -5614,6 +5741,10 @@ function openTavrika(){
   function drawFx(){ ctx.font='bold 8px "Courier New",monospace'; ctx.textAlign='center'; for(const f of FX){ const k=1-f.t/.8; ctx.globalAlpha=Math.min(1,f.t*2.5); const px=Math.round(f.x-cam.x), py=Math.round(f.y-cam.y-k*12); ctx.fillStyle='#000'; ctx.fillText(f.txt,px+1,py+1); ctx.fillStyle=f.col; ctx.fillText(f.txt,px,py); } ctx.globalAlpha=1; }
   function drawTorch(e){ const x=Math.round(e.x*TS+8-cam.x), y=Math.round(e.y*TS+14-cam.y), fl=Math.floor(tAnim*8+e.x)%2; ctx.fillStyle='#4a3622'; ctx.fillRect(x-1,y-8,2,9); ctx.fillStyle='#ffb347'; ctx.fillRect(x-2,y-12-fl,4,4+fl); ctx.fillStyle='#fff2b0'; ctx.fillRect(x-1,y-11,2,2); }
   function drawChest(e){ const x=Math.round(e.x*TS+8-cam.x), y=Math.round(e.y*TS+14-cam.y), op=!!S.picked[e.id]; ctx.fillStyle='rgba(0,0,0,.3)'; ctx.fillRect(x-7,y-1,14,2); ctx.fillStyle='#5a3a1e'; ctx.fillRect(x-7,y-9,14,9); ctx.fillStyle=op?'#14120f':'#80532b'; ctx.fillRect(x-6,y-8,12,3); ctx.fillStyle='#c9a24a'; ctx.fillRect(x-7,y-5,14,1); if(!op) ctx.fillRect(x-1,y-6,2,3); }
+  function drawMark(e){ const x=Math.round(e.x*TS+8-cam.x), y=Math.round(e.y*TS+14-cam.y); ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(x-9,y,18,2);
+    if(e.k==='pass'){ ctx.fillStyle='#5a3a1e'; ctx.fillRect(x-8,y-16,3,17); ctx.fillRect(x+5,y-16,3,17); ctx.fillRect(x-9,y-17,18,3); ctx.fillStyle='#2a5a8a'; ctx.fillRect(x-4,y-14,8,6); ctx.fillStyle='#e6c75a'; ctx.fillRect(x-1,y-13,2,4); }
+    else if(e.k==='cross'){ ctx.fillStyle='#4a2f18'; ctx.fillRect(x-1,y-16,3,17); ctx.fillRect(x-5,y-12,11,3); ctx.fillStyle='#6e4a28'; ctx.fillRect(x,y-16,1,17); ctx.fillRect(x-5,y-12,11,1); }
+    else { ctx.fillStyle='#7d7d85'; ctx.fillRect(x-5,y-4,10,5); ctx.fillStyle='#9a9aa2'; ctx.fillRect(x-4,y-8,8,4); ctx.fillStyle='#6a6a72'; ctx.fillRect(x-2,y-11,4,3); } }
   const dk=document.createElement('canvas'), dq=dk.getContext('2d');
   function drawDark(){ if(dk.width!==VW||dk.height!==VH){ dk.width=VW; dk.height=VH; } dq.globalCompositeOperation='source-over'; dq.fillStyle='rgba(2,2,8,.86)'; dq.fillRect(0,0,VW,VH); dq.globalCompositeOperation='destination-out';
     const hole=(x,y,r,a)=>{ const g=dq.createRadialGradient(x,y,2,x,y,r); g.addColorStop(0,'rgba(0,0,0,'+a+')'); g.addColorStop(1,'rgba(0,0,0,0)'); dq.fillStyle=g; dq.beginPath(); dq.arc(x,y,r,0,6.3); dq.fill(); };
@@ -5637,22 +5768,27 @@ function openTavrika(){
     const x0=Math.floor(cam.x/TS), y0=Math.floor(cam.y/TS), x1=Math.ceil((cam.x+VW)/TS), y1=Math.ceil((cam.y+VH)/TS), wf=Math.floor(tAnim*1.6)%2;
     for(let ty=y0;ty<y1;ty++) for(let tx=x0;tx<x1;tx++){ let t=get(tx,ty); if(t===GATE&&S.flags.gate) t=PATH; ctx.drawImage(tiles,t*TS,(t===WAT?wf:0)*TS,TS,TS,tx*TS-cam.x,ty*TS-cam.y,TS,TS); }
     if(MAPNAME==='world') drawCave(cam.x,cam.y);
-    const list=[]; for(const e of ENTS){ if(e.k==='item'){ if(!S.picked[e.id]) list.push({y:e.y*TS+10,f:()=>drawItem(e,cam.x,cam.y)}); } else if(e.k==='sign') list.push({y:e.y*TS+14,f:()=>drawSign(e,cam.x,cam.y)}); else if(e.k==='chest') list.push({y:e.y*TS+14,f:()=>drawChest(e)}); else if(e.k==='torch') list.push({y:e.y*TS+14,f:()=>drawTorch(e)}); else if(e.k==='npc'){ const pal=PAL[e.pal]; list.push({y:e.y*TS+14,f:()=>drawChar(ctx,e.x*TS+8-cam.x,e.y*TS+14-cam.y,e.dir,0,pal,false)}); } }
+    const list=[]; for(const e of ENTS){ if(e.k==='item'){ if(!S.picked[e.id]) list.push({y:e.y*TS+10,f:()=>drawItem(e,cam.x,cam.y)}); } else if(e.k==='sign') list.push({y:e.y*TS+14,f:()=>drawSign(e,cam.x,cam.y)}); else if(e.k==='chest') list.push({y:e.y*TS+14,f:()=>drawChest(e)}); else if(e.k==='torch') list.push({y:e.y*TS+14,f:()=>drawTorch(e)}); else if(e.k==='pass'||e.k==='down'||e.k==='trail'||e.k==='up'||e.k==='cross') list.push({y:e.y*TS+14,f:()=>drawMark(e)}); else if(e.k==='npc'){ const pal=PAL[e.pal]; list.push({y:e.y*TS+14,f:()=>drawChar(ctx,e.x*TS+8-cam.x,e.y*TS+14-cam.y,e.dir,0,pal,false)}); } }
     for(const en of ENEMIES) list.push({y:en.y,f:()=>drawEnemy(en)}); list.push({y:S.y,f:drawPlayer});
     list.sort((a,b)=>a.y-b.y); for(const o of list) o.f();
     const ne=(DLG||menuOpen)?null:nearest(); if(ne){ const bx=ne.x*TS+8-cam.x, by=ne.y*TS-cam.y-(ne.k==='npc'?8:2)+Math.round(Math.sin(tAnim*5)*1.5); ctx.fillStyle='#000'; ctx.fillRect(bx-3,by-6,7,2); ctx.fillRect(bx-2,by-4,5,2); ctx.fillRect(bx-1,by-2,3,2); ctx.fillStyle='#ffe3a0'; ctx.fillRect(bx-2,by-6,5,1); ctx.fillRect(bx-1,by-5,3,1); ctx.fillRect(bx,by-4,1,1); }
     drawFx(); if(MAPNAME==='cave') drawDark();
-    const h=S.t/60%24; let a=h<5?.55:h<7?.55*(7-h)/2:h<19?0:h<21?.55*(h-19)/2:.55; if(a>0&&MAPNAME==='world'){ ctx.fillStyle='rgba(8,14,50,'+a.toFixed(3)+')'; ctx.fillRect(0,0,VW,VH); }
+    const h=S.t/60%24; let a=h<5?.55:h<7?.55*(7-h)/2:h<19?0:h<21?.55*(h-19)/2:.55; if(a>0&&(MAPNAME==='world'||MAPNAME==='pass'||MAPNAME==='kas')){ ctx.fillStyle='rgba(8,14,50,'+a.toFixed(3)+')'; ctx.fillRect(0,0,VW,VH); }
   }
-  const objective=()=>{ if(S.q.bandits===1) return S.flags.bossDead?'Вернись к консулу Джованни за наградой.':'Убей главаря разбойников в пещере к северу от деревни.'; if(S.q.letter===2&&S.q.bandits===0&&!(S.q.shells===1||S.q.herbs===1)) return 'Консул Джованни ждёт тебя с новым поручением.'; if(S.q.letter===1) return S.flags.gate?'Отнеси письмо консулу Джованни в Солдайе.':'Письмо консулу: пройди ворота Солдайи (пошлина 5 монет).'; if(S.q.shells===1) return 'Ракушки для рыбака: '+S.inv.shells+' из 3.'; if(S.q.herbs===1) return 'Чабрец для брата Никодима: '+S.inv.herbs+' из 3.'; if(S.q.letter===0) return 'Поговори с мельником Лукой в деревне.'; return 'Исследуй окрестности. Позже появятся новые задания.'; };
+  const objective=()=>{ if(S.q.cross===1) return !S.flags.crossSeen?'Поднимись по тропе к кресту на скале в Кастропуло.':!S.flags.crossEnd?'Поговори с рыбаком Никосом на берегу.':'Вернись к Феофано.';
+    if(S.q.shep===1) return !S.flags.alphaDead?'Найди пастуха Алексея на юго-западе от хутора. Рядом стая и вожак.':!S.flags.shepSaved?'Поговори с пастухом Алексеем.':'Вернись к старейшине Прокопию.';
+    if(S.q.pass===1) return !S.flags.elderTalk?(MAPNAME==='pass'?'Поговори со старейшиной хутора Прокопием.':'Поднимись по тропе на север от деревни, на хутор Каменная Балка.'):!S.flags.georgyDone?'Поговори с дозорным Георгием у башни.':'Вернись к консулу Джованни в Солдайю.';
+    if(S.q.bandits===2&&S.q.pass===0) return 'Консул Джованни ждёт тебя с новым поручением.';
+    if(S.q.pass===2&&!S.q.shep) return 'Третья часть пройдена. Можно помочь пастуху на хуторе.'; if(S.q.pass===2) return 'Третья часть пройдена. Исследуй мир и копи снаряжение.';
+    if(S.q.bandits===1) return S.flags.bossDead?'Вернись к консулу Джованни за наградой.':'Убей главаря разбойников в пещере к северу от деревни.'; if(S.q.letter===2&&S.q.bandits===0&&!(S.q.shells===1||S.q.herbs===1)) return 'Консул Джованни ждёт тебя с новым поручением.'; if(S.q.letter===1) return S.flags.gate?'Отнеси письмо консулу Джованни в Солдайе.':'Письмо консулу: пройди ворота Солдайи (пошлина 5 монет).'; if(S.q.shells===1) return 'Ракушки для рыбака: '+S.inv.shells+' из 3.'; if(S.q.herbs===1) return 'Чабрец для брата Никодима: '+S.inv.herbs+' из 3.'; if(S.q.letter===0) return 'Поговори с мельником Лукой в деревне.'; return 'Исследуй окрестности. Позже появятся новые задания.'; };
   const clock=()=>{ const m=Math.floor(S.t)%1440; return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); };
   function menuHTML(){
     const qs=[]; const Q=(k,a,b,c)=>{ if(S.q[k]===1) qs.push('<p><b>'+a+'</b> (в процессе). '+b+'</p>'); else if(S.q[k]===2) qs.push('<p style="color:#8fbf7a"><b>'+a+'</b> (выполнено). '+c+'</p>'); };
-    Q('letter','Письмо консулу','Отнеси его в Солдайю.','Консул доволен.'); Q('bandits','Разбойники в пещере','Убей главаря в пещере к северу.','Консул доволен.'); Q('shells','Ракушки для рыбака','Собери три на берегу.','Рыбак рад.'); Q('herbs','Чабрец для монаха','Три пучка в лесу.','Монах благодарен.');
-    const I=S.inv, items=[]; if(I.bread) items.push('Хлеб: '+I.bread+' <button class="tv-bt" data-m="eat">Съесть</button>'); if(I.letter) items.push('Письмо с печатью мельника'); if(I.shells) items.push('Ракушки: '+I.shells); if(I.herbs) items.push('Чабрец: '+I.herbs); if(I.knife) items.push('Нож');
+    Q('letter','Письмо консулу','Отнеси его в Солдайю.','Консул доволен.'); Q('bandits','Разбойники в пещере','Убей главаря в пещере к северу.','Консул доволен.'); Q('shells','Ракушки для рыбака','Собери три на берегу.','Рыбак рад.'); Q('herbs','Чабрец для монаха','Три пучка в лесу.','Монах благодарен.'); Q('pass','Вести с перевала','Поговори на хуторе со старейшиной и дозорным, вернись к консулу.','Консул получил вести.'); Q('cross','Крест на скале','Осмотри крест в Кастропуло и поговори с Никосом.','Дело улажено.'); Q('shep','Пропавший пастух','Найди Алексея на южном склоне. Рядом вожак стаи.','Хутор благодарен.');
+    const I=S.inv, items=[]; if(I.bread) items.push('Хлеб: '+I.bread+' <button class="tv-bt" data-m="eat">Съесть</button>'); if(I.letter) items.push('Письмо с печатью мельника'); if(I.shells) items.push('Ракушки: '+I.shells); if(I.herbs) items.push('Чабрец: '+I.herbs); if(I.salt) items.push('Соль: '+I.salt+' меш.'); if(I.wine) items.push('Вино: '+I.wine); if(I.knife) items.push('Нож');
     const sk=Object.keys(SK).map(k=>{ const s=S.sk[k], need=3+s.l*3; return `<div class="tv-sk"><span style="min-width:110px">${SK[k]} ${s.l}</span><i><u style="width:${Math.round(s.x/need*100)}%"></u></i></div>`; }).join('');
     const eqh='<p>'+Object.keys(WPN).filter(w=>w==='fists'||S.inv[w]).map(w=>`<button class="tv-bt" data-m="eqw:${w}" style="${S.eq.w===w?'border-color:#e6c75a':''}">${WPN[w].n} ${WPN[w].d}</button>`).join(' ')+'</p><p>'+Object.keys(ARM).filter(k=>k==='none'||S.inv[k]).map(k=>`<button class="tv-bt" data-m="eqa:${k}" style="${S.eq.a===k?'border-color:#e6c75a':''}">${ARM[k].n}${ARM[k].a?' '+ARM[k].a:''}</button>`).join(' ')+'</p>';
-    return `<div class="tv-mn"><h3 style="margin-top:0">Задания</h3>${qs.join('')||'<p>Пока нет заданий.</p>'}<h3>Здоровье</h3><p>Здоровье: <b>${Math.ceil(S.hp)}/${S.hpMax}</b>${S.inv.bandage?` <button class="tv-bt" data-m="heal">Перевязаться (${S.inv.bandage})</button>`:''}</p><h3>Снаряжение</h3>${eqh}<h3>Вещи</h3><p>Монет: <b>${S.coins}</b></p>${items.map(t=>'<p>'+t+'</p>').join('')||'<p>Пусто.</p>'}<h3>Навыки</h3>${sk}<h3>Репутация</h3><p>Генуя: ${S.rep.gen}. Деревня: ${S.rep.vil}.</p><div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap"><button class="tv-bt" data-m="menu">Продолжить</button><button class="tv-bt" data-m="reset">${confirmReset?'Точно начать заново?':'Начать заново'}</button><button class="tv-bt" data-m="exit">Выйти</button></div></div>`;
+    return `<div class="tv-mn"><h3 style="margin-top:0">Задания</h3>${qs.join('')||'<p>Пока нет заданий.</p>'}<h3>Здоровье</h3><p>Здоровье: <b>${Math.ceil(S.hp)}/${S.hpMax}</b>${S.inv.bandage?` <button class="tv-bt" data-m="heal">Перевязаться (${S.inv.bandage})</button>`:''}</p><h3>Снаряжение</h3>${eqh}<h3>Вещи</h3><p>Монет: <b>${S.coins}</b></p>${items.map(t=>'<p>'+t+'</p>').join('')||'<p>Пусто.</p>'}<h3>Навыки</h3>${sk}<h3>Репутация</h3><p>Генуя: ${S.rep.gen}. Деревня: ${S.rep.vil}. Феодоро: ${S.rep.feo||0}.</p><div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap"><button class="tv-bt" data-m="menu">Продолжить</button><button class="tv-bt" data-m="reset">${confirmReset?'Точно начать заново?':'Начать заново'}</button><button class="tv-bt" data-m="exit">Выйти</button></div></div>`;
   }
   function toggleMenu(){ if(DLG) return; menuOpen=!menuOpen; confirmReset=false; inp.x=0; inp.y=0; lastOv=null; }
   function menuAct(m){
