@@ -261,13 +261,22 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        long now = System.currentTimeMillis();
-        if (now - lastBack < 2000) {
-            super.onBackPressed();
-        } else {
-            lastBack = now;
-            Toast.makeText(this, "Нажми «назад» ещё раз, чтобы выйти", Toast.LENGTH_SHORT).show();
-        }
+        String js = "(function(){var f=document.getElementById('fdClose');if(f){f.click();return 1;}"
+            + "var sb=document.getElementById('setBack');if(sb&&sb.classList.contains('on')){sb.click();return 1;}"
+            + "var m=document.querySelectorAll('.mback');if(m.length){m[m.length-1].click();return 1;}return 0;})()";
+        web.evaluateJavascript(js, new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String v) {
+                if ("1".equals(v)) return;
+                long now = System.currentTimeMillis();
+                if (now - lastBack < 2000) {
+                    finish();
+                } else {
+                    lastBack = now;
+                    Toast.makeText(MainActivity.this, "Нажми «назад» ещё раз, чтобы выйти", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void toast(final String t) {
