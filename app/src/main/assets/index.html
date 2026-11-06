@@ -5951,29 +5951,15 @@ setTimeout(updateRndBtn,600);
     for(let i=u.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [u[i],u[j]]=[u[j],u[i]]; }
     return u;
   }
-  const ytWait={};
-  window.__ytCb=function(id,vid,ok){ const f=ytWait[id]; if(f){ delete ytWait[id]; f({v:vid,ok:ok}); } };
-  function ytSearch(q){ return new Promise(res=>{ const id='y'+Math.random().toString(36).slice(2); ytWait[id]=res; setTimeout(()=>{ if(ytWait[id]){ delete ytWait[id]; res({v:'',ok:0}); } },20000); try{ AndroidSave.ytSearch(id,q); }catch(e){ delete ytWait[id]; res({v:'',ok:0}); } }); }
+  const trWait={};
+  window.__trCb=function(o){ const f=trWait[o.id]; if(f){ delete trWait[o.id]; f(o); } };
+  function findTr(title){ return new Promise(res=>{ const id='t'+Math.random().toString(36).slice(2); trWait[id]=res; setTimeout(()=>{ if(trWait[id]){ delete trWait[id]; res({net:0}); } },25000); try{ AndroidSave.findTrailer(id,title); }catch(e){ delete trWait[id]; res({net:0}); } }); }
   async function trailerFor(it){
-    if(window.AndroidSave&&AndroidSave.ytSearch){
-      const c0=cache[it.key]; if(c0&&c0.y) return c0;
-      const r=await ytSearch(it.title+' '+(/^PS[45]$/.test(it.platform)?it.platform+' ':'')+'official trailer');
-      if(r.v){ const rec={y:r.v,u:'',p:'',t:Date.now()}; cache[it.key]=rec; saveC(); return rec; }
-      if(!r.ok) return {u:'',err:1};
-    }
-    const c=cache[it.key]; if(c&&(c.u||Date.now()-c.t<14*864e5)) return c;
-    try{
-      const res=await rawgSearch(it.title,it.title,it.year); const m=res[0];
-      let rec={u:'',p:'',t:Date.now()};
-      if(m){
-        const r=await fetch('https://api.rawg.io/api/games/'+m.id+'/movies?key='+RAWG_KEY);
-        if(!r.ok) throw new Error('RAWG '+r.status);
-        const j=await r.json(), v=(j.results||[])[0];
-        const https=x=>String(x||'').replace(/^http:/,'https:');
-        rec={u:https(v&&v.data?(v.data['480']||v.data.max||''):''),p:https((v&&v.preview)||m.background_image||''),t:Date.now()};
-      }
-      cache[it.key]=rec; saveC(); return rec;
-    }catch(e){ return {u:'',err:1}; }
+    if(!(window.AndroidSave&&AndroidSave.findTrailer)) return {u:'',err:1,off:1};
+    const c0=cache[it.key]; if(c0&&(c0.y||c0.u)) return c0;
+    const r=await findTr(it.title);
+    if(r.y||r.u){ const rec={y:r.y||'',u:r.u||'',p:r.p||'',t:Date.now()}; cache[it.key]=rec; saveC(); return rec; }
+    return r.net?{u:'',y:'',notfound:1,p:r.p||''}:{u:'',err:1};
   }
   window.openFeed=function(){
     if(document.getElementById('feed')) return;
@@ -6017,8 +6003,8 @@ setTimeout(updateRndBtn,600);
         d.insertBefore(box,info);
         const a=document.createElement('a'); a.href='https://www.youtube.com/watch?v='+t.y; a.target='_blank'; a.rel='noopener'; a.textContent='Открыть на YouTube'; info.appendChild(a);
         if(d.dataset.on==='1') ytOn(d); return; }
-      if(t.err){ loaded.delete(i); status.textContent=(typeof rawgMsg==='function'?rawgMsg({message:''}):'Нет связи.'); showCover(it.cover); return; }
-      if(!t.u){ status.textContent='В базе нет трейлера для этой игры.'; showCover(it.cover||t.p); yt(); return; }
+      if(t.err){ loaded.delete(i); status.textContent=t.off?'Трейлеры работают только в установленном приложении.':'Нет связи со Steam и YouTube. Проверь интернет или VPN.'; showCover(it.cover); return; }
+      if(!t.u){ status.textContent='Трейлер не найден ни в Steam, ни на YouTube.'; showCover(it.cover||t.p); yt(); return; }
       status.remove();
       const v=document.createElement('video'); v.className='fd-media'; v.playsInline=true; v.muted=muted; v.loop=true; v.preload='auto'; v.controls=false; if(t.p) v.poster=t.p; v.src=t.u;
       v.addEventListener('click',()=>{ v.paused?v.play().catch(()=>{}):v.pause(); });

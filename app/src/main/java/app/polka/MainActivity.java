@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import androidx.webkit.WebViewAssetLoader;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -285,6 +286,25 @@ public class MainActivity extends Activity {
         });
     }
 
+    private static String norm(String t) {
+        return t.toLowerCase().replaceAll("[^\\p{L}\\p{Nd}]", "");
+    }
+
+    private static String httpGet(String url) throws Exception {
+        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+        c.setConnectTimeout(10000);
+        c.setReadTimeout(10000);
+        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36");
+        c.setRequestProperty("Accept-Language", "en-US,en;q=0.9");
+        c.setRequestProperty("Cookie", "CONSENT=YES+1; SOCS=CAI");
+        BufferedReader r = new BufferedReader(new InputStreamReader(c.getInputStream(), "UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = r.readLine()) != null && sb.length() < 3000000) sb.append(line);
+        r.close();
+        return sb.toString();
+    }
+
     private void toast(final String t) {
         runOnUiThread(new Runnable() {
             @Override
@@ -327,38 +347,76 @@ public class MainActivity extends Activity {
             } catch (Exception ignored) { }
         }
 
-        // Поиск трейлера на YouTube без ключа: берём первую найденную ссылку на видео из страницы результатов.
+        // Ищем трейлер: сначала Steam (прямой файл), потом YouTube (ссылка на видео). Ключи не нужны.
         @JavascriptInterface
-        public void ytSearch(final String id, final String query) {
+        public void findTrailer(final String id, final String title) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    String vid = "";
-                    int ok = 0;
+                    String u = "", p = "", y = "";
+                    int net = 0;
                     try {
-                        URL u = new URL("https://www.youtube.com/results?search_query="
-                            + URLEncoder.encode(query, "UTF-8") + "&sp=EgIQAQ%253D%253D");
-                        HttpURLConnection c = (HttpURLConnection) u.openConnection();
-                        c.setConnectTimeout(10000);
-                        c.setReadTimeout(10000);
-                        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36");
-                        c.setRequestProperty("Accept-Language", "en-US,en;q=0.9");
-                        c.setRequestProperty("Cookie", "CONSENT=YES+1; SOCS=CAI");
-                        BufferedReader r = new BufferedReader(new InputStreamReader(c.getInputStream(), "UTF-8"));
-                        StringBuilder sb = new StringBuilder();
-                        String line;
-                        while ((line = r.readLine()) != null && sb.length() < 3000000) sb.append(line);
-                        r.close();
-                        Matcher m = Pattern.compile("\"videoId\":\"([A-Za-z0-9_-]{11})\"").matcher(sb);
-                        if (m.find()) vid = m.group(1);
-                        ok = 1;
+                        String body = httpGet("https://store.steampowered.com/api/storesearch/?term="
+                            + URLEncoder.encode(title, "UTF-8") + "&l=english&cc=us");
+                        net = 1;
+                        JSONArray items = new JSONObject(body).optJSONArray("items");
+                        String want = norm(title);
+                        int pick = -1;
+                        if (items != null) {
+                            for (int k = 0; k < items.length() && pick < 0; k++) {
+                                if (norm(items.getJSONObject(k).optString("name")).equals(want)) pick = k;
+                            }
+                            for (int k = 0; k < items.length() && pick < 0; k++) {
+                                String nm = norm(items.getJSONObject(k).optString("name"));
+                                if (nm.startsWith(want) || want.startsWith(nm)) pick = k;
+                            }
+                        }
+                        if (pick >= 0) {
+                            String appid = String.valueOf(items.getJSONObject(pick).optInt("id"));
+                            p = "https://cdn.akamai.steamstatic.com/steam/apps/" + appid + "/header.jpg";
+                            String det = httpGet("https://store.steampowered.com/api/appdetails?appids=" + appid + "&l=english");
+                            JSONObject d = new JSONObject(det).optJSONObject(appid);
+                            JSONArray mv = d == null || d.optJSONObject("data") == null ? null : d.getJSONObject("data").optJSONArray("movies");
+                            if (mv != null && mv.length() > 0) {
+                                JSONObject m = mv.getJSONObject(0);
+                                JSONObject mp4 = m.optJSONObject("mp4");
+                                if (mp4 != null) {
+                                    u = mp4.optString("480", "");
+                                    if (u.length() == 0) u = mp4.optString("max", "");
+                                }
+                                if (u.startsWith("http:")) u = "https:" + u.substring(5);
+                                String th = m.optString("thumbnail", "");
+                                if (th.startsWith("http:")) th = "https:" + th.substring(5);
+                                if (th.length() > 0) p = th;
+                            }
+                        }
                     } catch (Exception ignored) { }
-                    final String js = "window.__ytCb&&window.__ytCb(" + JSONObject.quote(id) + ","
-                        + JSONObject.quote(vid) + "," + ok + ")";
+                    if (u.length() == 0) {
+                        try {
+                            String body = httpGet("https://www.youtube.com/results?search_query="
+                                + URLEncoder.encode(title + " official trailer", "UTF-8") + "&sp=EgIQAQ%253D%253D");
+                            net = 1;
+                            Matcher m = Pattern.compile("\"videoId\":\"([A-Za-z0-9_-]{11})\"").matcher(body);
+                            if (m.find()) y = m.group(1);
+                        } catch (Exception ignored) { }
+                    }
+                    String js;
+                    try {
+                        JSONObject o = new JSONObject();
+                        o.put("id", id);
+                        o.put("u", u);
+                        o.put("p", p);
+                        o.put("y", y);
+                        o.put("net", net);
+                        js = "window.__trCb&&window.__trCb(" + o.toString() + ")";
+                    } catch (Exception e) {
+                        return;
+                    }
+                    final String run = js;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            web.evaluateJavascript(js, null);
+                            web.evaluateJavascript(run, null);
                         }
                     });
                 }
