@@ -55,7 +55,9 @@ public class MainActivity extends Activity {
         + "if(bb&&!document.getElementById('btnUpd')){var u=document.createElement('button');"
         + "u.className=bb.className;u.id='btnUpd';u.style.marginBottom='8px';u.style.marginLeft='6px';"
         + "u.textContent='Проверить обновления';"
-        + "u.onclick=function(){AndroidSave.checkUpdate();};bb.parentNode.insertBefore(u,bb.nextSibling);}"
+        + "u.onclick=function(){AndroidSave.checkUpdate();};bb.parentNode.insertBefore(u,bb.nextSibling);"
+        + "var w=document.createElement('button');w.className=bb.className;w.id='btnNew';w.style.marginBottom='8px';w.style.marginLeft='6px';"
+        + "w.textContent='Что нового';w.onclick=function(){AndroidSave.showChangelog();};u.parentNode.insertBefore(w,u.nextSibling);}"
         + "})();";
 
 
@@ -152,7 +154,37 @@ public class MainActivity extends Activity {
         } else {
             web.loadUrl("https://" + HOST + "/assets/index.html");
             checkUpdate(false);
+            showWhatsNew(false);
         }
+    }
+
+    // Окно «Что нового»: при первом запуске после обновления и по кнопке.
+    private void showWhatsNew(final boolean force) {
+        try {
+            int ver = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+            SharedPreferences sp = getSharedPreferences("whatsnew", MODE_PRIVATE);
+            if (!force && sp.getInt("seen", 0) == ver) return;
+            java.io.InputStream in = getAssets().open("changelog.txt");
+            java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[4096];
+            int n;
+            while ((n = in.read(buf)) > 0) bo.write(buf, 0, n);
+            in.close();
+            final String text = bo.toString("UTF-8").trim();
+            if (text.length() == 0) return;
+            sp.edit().putInt("seen", ver).apply();
+            final String title = "Что нового в версии 1.0." + ver;
+            web.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(title)
+                        .setMessage(text)
+                        .setPositiveButton("Понятно", null)
+                        .show();
+                }
+            }, force ? 0 : 1500);
+        } catch (Exception ignored) { }
     }
 
     // Раз в сутки смотрим номер последней успешной сборки на GitHub и сравниваем со своим.
@@ -277,6 +309,16 @@ public class MainActivity extends Activity {
                 getSharedPreferences("auto", MODE_PRIVATE).edit().putLong("last", System.currentTimeMillis()).apply();
                 toast("Автокопия сохранена в «Загрузки»: " + name);
             } catch (Exception ignored) { }
+        }
+
+        @JavascriptInterface
+        public void showChangelog() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showWhatsNew(true);
+                }
+            });
         }
 
         @JavascriptInterface
