@@ -1806,7 +1806,7 @@ function openVoxel(){
     return false;
   }
   const hitsBox=(px,py,pz)=>hitsG(px,py,pz,.3,1.8);
-  const inWater=()=>get(Math.floor(P.x),Math.floor(P.y+.5),Math.floor(P.z))===B.WATER;
+  const inWater=()=>get(Math.floor(P.x),Math.floor(P.y+.1),Math.floor(P.z))===B.WATER;
   const ladderAt=(x,y,z)=>get(Math.floor(x),Math.floor(y),Math.floor(z))===B.LADDER;
   const onLadder=()=>!P.fly&&(ladderAt(P.x,P.y+.3,P.z)||ladderAt(P.x,P.y+1.3,P.z));
   let sprintJ=false;
@@ -1822,10 +1822,10 @@ function openVoxel(){
     const up=keys[' ']||jumpHeld, dn=keys.Shift&&P.fly||downHeld;
     if(P.fly){ P.vy=(up?7:0)-(dn?7:0); }
     else if(onLadder()){ P.vy=(up||fz>.3)?3.4:((dn||fz<-.3)?-3.2:0); P.ground=false; }
-    else if(inWater()){ P.vy+=(up?18:-6)*dt; P.vy=clamp(P.vy,-3.5,3.2); }
-    else { P.vy-=26*dt; P.vy=Math.max(P.vy,-40); if(up&&P.ground){ P.vy=8.4; P.ground=false; } }
-    let nx=P.x+P.vx*dt; if(hitsBox(nx,P.y,P.z)){ if((Math.abs(P.vx)>.5)&&P.ground&&!P.fly&&!hitsBox(nx,P.y+1.05,P.z)) P.vy=7.6; P.vx=0; nx=P.x; } P.x=clamp(nx,.35,SX-.35);
-    let nz=P.z+P.vz*dt; if(hitsBox(P.x,P.y,nz)){ if((Math.abs(P.vz)>.5)&&P.ground&&!P.fly&&!hitsBox(P.x,P.y+1.05,nz)) P.vy=7.6; P.vz=0; nz=P.z; } P.z=clamp(nz,.35,SZ-.35);
+    else if(inWater()){ P.vy+=(up?18:-6)*dt; P.vy=clamp(P.vy,-3.5,(up&&!headWater())?8.2:3.2); }
+    else { P.vy-=26*dt; P.vy=Math.max(P.vy,-40); if(up&&P.ground){ P.vy=9.3; P.ground=false; } }
+    let nx=P.x+P.vx*dt; if(hitsBox(nx,P.y,P.z)){ if((Math.abs(P.vx)>.5)&&(P.ground||inWater())&&!P.fly&&!hitsBox(nx,P.y+1.05,P.z)) P.vy=7.6; P.vx=0; nx=P.x; } P.x=clamp(nx,.35,SX-.35);
+    let nz=P.z+P.vz*dt; if(hitsBox(P.x,P.y,nz)){ if((Math.abs(P.vz)>.5)&&(P.ground||inWater())&&!P.fly&&!hitsBox(P.x,P.y+1.05,nz)) P.vy=7.6; P.vz=0; nz=P.z; } P.z=clamp(nz,.35,SZ-.35);
     let ny=P.y+P.vy*dt; P.ground=false;
     if(hitsBox(P.x,ny,P.z)){ if(P.vy<0) P.ground=true; P.vy=0; ny=P.y; if(P.ground){ ny=Math.floor(P.y+1e-4); if(hitsBox(P.x,ny,P.z)) ny=P.y; } }
     P.y=ny; if(P.y<-10){ const s=spawnPos(); P.x=s[0]; P.y=s[1]; P.z=s[2]; P.vy=0; }
