@@ -93,7 +93,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= 33
             && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 2);
         }
         web = new WebView(this);
         web.setBackgroundColor(Color.parseColor("#0d1117"));
@@ -133,7 +132,6 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 view.evaluateJavascript(HOOK, null);
-                view.evaluateJavascript(SYNC, null);
             }
         });
 
@@ -159,7 +157,6 @@ public class MainActivity extends Activity {
             web.restoreState(savedInstanceState);
         } else {
             web.loadUrl("https://" + HOST + "/assets/index.html");
-            checkUpdate(false);
             showWhatsNew(false);
         }
     }

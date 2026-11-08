@@ -10,7 +10,7 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId 'app.polka.shelf'
+        applicationId 'app.polka.blocks'
         minSdk 29
         targetSdk 34
         versionCode vc

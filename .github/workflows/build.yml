@@ -1,8 +1,8 @@
-name: Build APK
+name: Build Blocks APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ blocks ]
   workflow_dispatch:
 
 permissions:
@@ -36,12 +36,12 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: polka-apk
+          name: blocks-apk
           path: app/build/outputs/apk/release/*.apk
 
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp app/build/outputs/apk/release/*.apk polka.apk
-          gh release create v${{ github.run_number }} polka.apk --title "v${{ github.run_number }}" --notes "Build ${{ github.run_number }}" --latest
+          cp app/build/outputs/apk/release/*.apk blocks.apk
+          gh release create blocks-v${{ github.run_number }} blocks.apk --title "Блоки v${{ github.run_number }}" --notes "Отдельное приложение Блоки, сборка ${{ github.run_number }}" --prerelease --latest=false
