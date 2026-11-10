@@ -294,6 +294,11 @@ public class MainActivity extends Activity {
 
     private class Bridge {
         @JavascriptInterface
+        public void setNowPlaying(String json) {
+            NowWidget.setData(getApplicationContext(), json);
+        }
+
+        @JavascriptInterface
         public void setReminders(String json) {
             Reminders.apply(getApplicationContext(), json);
         }

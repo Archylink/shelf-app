@@ -105,18 +105,24 @@ small.hint{color:var(--muted);display:block;margin-bottom:10px;font-size:12.5px}
 .dcover{width:96px;height:54px;border-radius:8px;object-fit:cover;background:var(--card2);flex-shrink:0;cursor:zoom-in}.dcover.ph{display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--muted);cursor:default}
 button{touch-action:manipulation}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.ic{width:1.15em;height:1.15em;vertical-align:-.2em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;display:inline-block}
+.tab .ic{width:20px;height:20px;vertical-align:0;margin:0 auto 1px;display:block}
+.tab{justify-content:flex-start}
+h1 .ic{width:1.05em;height:1.05em;margin-right:.35em;vertical-align:-.12em}
+.ic.c-ok{color:var(--accent2)}.ic.c-gold{color:var(--gold)}.ic.c-bad{color:var(--danger)}.ic.c-ac{color:var(--accent)}
 </style>
 </head>
 <body>
 <header>
-  <h1>🎮 Моя полка</h1>
+  <h1><span class="ico-h" data-ic="games"></span>Моя полка</h1>
   <div class="tabs">
-    <div class="tab active" data-tab="shelf">Полка<span class="cnt" id="cnt-shelf">0</span></div>
-    <div class="tab" data-tab="digital">Цифра<span class="cnt" id="cnt-digital">0</span></div>
-    <div class="tab" data-tab="wish">Желаемое<span class="cnt" id="cnt-wish">0</span></div>
-    <div class="tab" data-tab="stats">Аналитика</div>
-    <div class="tab" data-tab="calendar">Календарь<span class="cnt" id="cnt-calendar">0</span></div>
-    <div class="tab" data-tab="games">Игры</div>
+    <div class="tab active" data-tab="shelf"><span class="ico-t" data-ic="shelf"></span>Полка<span class="cnt" id="cnt-shelf">0</span></div>
+    <div class="tab" data-tab="digital"><span class="ico-t" data-ic="digital"></span>Цифра<span class="cnt" id="cnt-digital">0</span></div>
+    <div class="tab" data-tab="wish"><span class="ico-t" data-ic="wish"></span>Желаемое<span class="cnt" id="cnt-wish">0</span></div>
+    <div class="tab" data-tab="stats"><span class="ico-t" data-ic="stats"></span>Аналитика</div>
+    <div class="tab" data-tab="calendar"><span class="ico-t" data-ic="calendar"></span>Календарь<span class="cnt" id="cnt-calendar">0</span></div>
+    <div class="tab" data-tab="games"><span class="ico-t" data-ic="games"></span>Игры</div>
   </div>
 </header>
 <main>
@@ -124,7 +130,7 @@ button{touch-action:manipulation}
   <div id="importStatus"></div>
 
   <section class="section active" id="shelf">
-    <input class="searchbox" id="searchShelf" placeholder="🔍 Поиск по полке...">
+    <input class="searchbox" id="searchShelf" placeholder="Поиск по полке...">
     <div class="inline-edit" style="margin-bottom:8px;flex-wrap:wrap">
       <select id="fPlat"><option value="">Все платформы</option><option>PS4</option><option>PS5</option></select>
       <select id="fGen"><option value="">Все жанры</option></select>
@@ -158,7 +164,7 @@ button{touch-action:manipulation}
   </section>
 
   <section class="section" id="digital">
-    <input class="searchbox" id="searchDig" placeholder="🔍 Поиск в цифре...">
+    <input class="searchbox" id="searchDig" placeholder="Поиск в цифре...">
     <div id="digBar" style="margin-bottom:8px"></div>
     <button class="mv" id="btnRawgAll" style="margin-bottom:8px;display:none">🖼 Подтянуть обложки с RAWG</button>
     <button class="addbtn" id="btnAddDig">+ Добавить цифровую игру</button>
@@ -177,7 +183,7 @@ button{touch-action:manipulation}
 
   <section class="section" id="wish">
     <small class="hint">Игры, которые хочешь купить — список не привязан к сериям.</small>
-    <input class="searchbox" id="searchWish" placeholder="🔍 Поиск в желаемом...">
+    <input class="searchbox" id="searchWish" placeholder="Поиск в желаемом...">
     <button class="addbtn" id="btnAddWish">+ Добавить в желаемое</button>
     <div id="wishForm" style="display:none" class="form">
       <label>Название</label><input id="w_title" placeholder="Название игры">
@@ -211,7 +217,7 @@ button{touch-action:manipulation}
 
   <section class="section" id="calendar">
     <small class="hint">Добавь игру и дату выхода диска. Когда дата пройдёт, игра сама перейдёт в «Желаемое».</small>
-    <input class="searchbox" id="searchCal" placeholder="🔍 Поиск в календаре...">
+    <input class="searchbox" id="searchCal" placeholder="Поиск в календаре...">
     <button class="addbtn" id="btnAddCal">+ Добавить дату</button>
     <div id="calForm" style="display:none" class="form">
       <label>Название игры</label><input id="c_title" placeholder="Название">
@@ -386,6 +392,10 @@ function yearOf(g){const m=String(g.releaseDate||'').match(/(\d{4})/);return m?m
 function devOf(g){return g.dev||DEV_MAP[g.title]||'';}
 const DISC_MAP={"007 First Light": ["2026-05-26", 0], "Alters": ["2026-11-20", 1], "Assassin's Creed: Rogue": ["2018-03-20", 0], "Assassin's Creed: Odyssey": ["2018-10-05", 0], "Atomfall": ["2025-03-27", 0], "Batman: Return to Arkham": ["2016-10-18", 0], "Battlefield 1": ["2016-10-21", 0], "Dead Island 2": ["2023-04-21", 0], "Death Stranding 2": ["2025-06-26", 0], "Devil May Cry HD Collection": ["2018-03-13", 0], "Dishonored": ["2015-08-25", 0], "Driveclub": ["2014-10-07", 0], "Fallout 76": ["2018-11-14", 0], "Far Cry 5": ["2018-03-27", 0], "God of War III": ["2015-07-14", 0], "GTA 5": ["2014-11-18", 0], "Helldivers II": ["2024-02-08", 0], "Hotline Miami Collection": ["2017-10-10", 1], "JoJo's Bizzare Adventure: All-Star Battle R": ["2022-09-01", 1], "Kingdom Come Deliverance 2": ["2025-02-04", 0], "Mafia Trilogy": ["2020-09-25", 0], "Marvel's Spider-Man 2": ["2023-10-20", 0], "Metro Redux": ["2014-08-26", 0], "Mortal Kombat X": ["2015-04-14", 0], "Prey": ["2017-05-05", 0], "Resident Evil 2 (2019)": ["2019-01-25", 0], "Resident Evil 6": ["2016-03-29", 0], "Riders Republic": ["2021-10-28", 0], "Saints Row (2022)": ["2022-08-23", 0], "Sleeping Dogs": ["2014-10-10", 1], "Still Wakes the Deep": ["2024-06-18", 0], "The Evil Within 2": ["2017-10-13", 0], "Thief": ["2014-02-25", 0], "Tomb Raider Definitive Edition": ["2014-01-28", 0], "Uncharted 4: A Thief's End": ["2016-05-10", 0], "Watch_Dogs": ["2014-05-27", 0], "Yakuza Remastered Collection": ["2020-02-11", 0], "Like a Dragon: Pirate Yakuza in Hawaii": ["2025-02-21", 0], "The Last of Us": ["2014-07-29", 0], "Middle-earth: Shadow of War": ["2017-10-10", 0], "Hogwarts Legacy": ["2023-02-10", 0], "Alan Wake 2": ["2024-10-22", 1], "Assassin's Creed: The Ezio Collection": ["2016-11-15", 1], "Assassin's Creed: Unity": ["2014-11-11", 0], "Assassin's Creed: Valhalla": ["2020-11-10", 0], "Atomic Heart": ["2023-02-21", 0], "Batman: Arkham Knight": ["2015-06-23", 0], "Bioshock The Collection": ["2016-09-13", 0], "Crimson Desert": ["2026-03-19", 0], "Dead Rising 4": ["2017-12-05", 1], "Deathloop": ["2021-09-14", 0], "DMC: Devil May Cry": ["2015-03-10", 1], "Dishonored 2": ["2016-11-11", 0], "Dying Light": ["2015-01-27", 0], "Far Cry 3": ["2018-06-26", 1], "Far Cry 6": ["2021-10-07", 0], "God of War (2018)": ["2018-04-20", 0], "GTA Trilogy": ["2021-12-07", 0], "Hitman": ["2017-01-31", 0], "Indiana Jones and the Great Circle": ["2025-04-17", 0], "Just Cause 3": ["2015-12-01", 0], "LEGO City Undercover": ["2017-03-31", 1], "Mafia: The Old Country": ["2025-08-08", 0], "Metal Gear Solid V: The Phantom Pain": ["2015-09-01", 0], "Metro: Exodus": ["2019-02-15", 0], "Mortal Kombat 1": ["2023-09-19", 0], "Rage 2": ["2019-05-14", 0], "Resident Evil 3": ["2020-04-03", 0], "Resident Evil 7": ["2017-01-24", 0], "S.T.A.L.K.E.R. 2 Heart Of Chornobyl": ["2025-11-20", 0], "Shadow of the Colossus": ["2018-02-06", 0], "SoulCalibur VI": ["2018-10-19", 0], "The Callisto Protocol": ["2022-12-02", 0], "The Order: 1886": ["2015-02-20", 0], "Titanfall 2": ["2016-10-28", 0], "Rise of the Tomb Raider": ["2016-10-11", 0], "Uncharted: The Lost Legacy": ["2017-08-22", 0], "Watch_Dogs 2": ["2016-11-15", 0], "Yakuza 6: The Song of Life": ["2018-04-17", 0], "Judgment": ["2019-06-25", 0], "The Witcher 3: Wild Hunt": ["2015-05-19", 1], "Watch Dogs: Legion": ["2020-10-29", 0], "Assassins Creed Black Flag Resynced": ["2026-07-09", 0], "Minecraft": ["2014-10-03", 0], "Mount and Blade 2": ["2022-10-25", 0], "Assassin's Creed III": ["2019-03-29", 0], "Дожить до рассвета": ["2015-08-25", 0], "Chernobylite": ["2022-04-21", 1], "Indika": ["2024-05-17", 1], "Silent Hill 2 Remake": ["2024-10-08", 0], "Metal Gear Solid Delta": ["2025-08-28", 0], "Vampire: The Masquerade — Bloodlines 2": ["2025-10-21", 0], "Alone in the Dark": ["2024-03-20", 0], "Assassin's Creed IV: Black Flag": ["2013-11-15", 1], "Assassin's Creed: Origins": ["2017-10-27", 0], "Assassin's Creed: Shadows": ["2025-03-20", 0], "Banishers: Ghosts of New Eden": ["2024-02-13", 0], "Battlefield 4": ["2013-11-15", 1], "Clair Obscur: Expedition 33": ["2025-04-24", 0], "Darksiders 3": ["2018-11-27", 0], "Death Stranding Directions Cut": ["2021-09-24", 0], "Deus Ex: Mankind Divided": ["2016-08-23", 0], "Disco Elysium": ["2021-11-09", 0], "Dragon's Dogma 2": ["2024-03-22", 0], "Fallout 4": ["2015-11-10", 0], "Far Cry: Primal": ["2016-02-23", 0], "Final Fantasy 16": ["2023-06-22", 0], "Gran Turismo: Sport": ["2017-10-17", 0], "Hellblade: Senua’s Sacrifice": ["2018-12-04", 0], "Hitman III": ["2021-01-20", 0], "inFAMOUS: Second Son": ["2014-03-21", 0], "Kingdom Come: Deliverance": ["2018-02-13", 0], "Mad Max": ["2015-09-01", 1], "Marvel's Spider-Man: Miles Morales": ["2020-11-12", 0], "Mirror's Edge Catalyst": ["2016-06-07", 1], "No Man's Sky": ["2016-08-09", 1], "Red Dead Redemption II": ["2018-10-26", 0], "Resident Evil 4 (2023)": ["2023-03-24", 0], "Resident Evil 9 Requiem": ["2026-02-27", 0], "Agents of Mayhem": ["2017-08-15", 1], "Skyrim": ["2016-10-28", 0], "SpongeBob SquarePants: The Cosmic Shake": ["2023-01-31", 0], "The Evil Within": ["2014-10-14", 0], "The Sinking City": ["2019-06-27", 0], "Tom Clancy's Ghost Recon: Wildlands": ["2017-03-07", 0], "UFC 3": ["2018-02-02", 0], "Vampyr": ["2018-06-05", 0], "Yakuza 20th Anniversary Edition": ["2025-12-08", 0], "Like a Dragon: Infinite Wealth": ["2024-01-26", 0], "Days Gone": ["2019-04-26", 0], "Ghost of Tsushima": ["2020-07-17", 0], "Like a Dragon Gaiden": ["2023-11-09", 0]};
 function discOf(g){if(g.discDate)return [g.discDate,0];return DISC_MAP[g.title]||null;}
+const PL_MON=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+function playRow(g,attr){ if(g.progress!=='Играю') return ''; const p=Number(g.pct)||0;
+  return `<div class="inline-edit" style="align-items:center;gap:8px"><input type="range" min="0" max="100" step="5" value="${p}" ${attr}="pct" data-id="${g.id}" style="flex:1;min-width:90px"><span class="meta" style="min-width:34px">${p}%</span><input type="month" ${attr}="startDate" data-id="${g.id}" value="${esc(g.startDate||'')}" title="Начал играть" style="min-width:150px;font:inherit"></div>`; }
+function playMeta(g){ if(g.progress!=='Играю') return ''; const m=/^(\d{4})-(\d{2})$/.exec(g.startDate||''); const bits=[]; if(g.pct) bits.push(g.pct+'%'); if(m) bits.push('с '+PL_MON[+m[2]-1]+' '+m[1]); return bits.length?`<div class="meta">${bits.join(' · ')}</div>`:''; }
 function discRu(g){const d=discOf(g);if(!d)return '';const m=d[0].match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[3]+'.'+m[2]+'.'+m[1]+(d[1]?' ❓':''):'';}
 function seriesOf(g){return g.series||detectSeries(g.title)||'';}
 function fillGenYear(){
@@ -428,6 +438,7 @@ function renderGames(){
           ${(devOf(g)||genreOf(g)||dateRu(g))?`<div class="meta">🛠 ${esc([devOf(g),genreOf(g),dateRu(g)].filter(Boolean).join(' · '))}</div>`:''}
           ${g.cond?`<span class="tag">💿 ${esc(g.cond)}</span>`:''}${rateTag(g)}
           ${(g.progress==='Пройдено'&&g.doneDate)?`<div class="meta">✅ Пройдено ${ruIso(g.doneDate)}</div>`:''}
+          ${playMeta(g)}
           ${g.note?`<div class="meta">📝 ${esc(g.note)}</div>`:''}
           <div class="inline-edit">
             <input data-field="price" data-id="${g.id}" type="number" placeholder="Цена" value="${g.price!=null?esc(String(g.price)):''}">
@@ -435,6 +446,7 @@ function renderGames(){
               ${STATUSES.map(o=>`<option value="${o}" ${g.progress===o?'selected':''}>${o||'Статус'}</option>`).join('')}
             </select>
           </div>
+          ${playRow(g,'data-field')}
           ${canRate(g.progress)?`<div class="inline-edit">${rateSel(g,'data-field="rate"')}</div>`:''}
           <div class="inline-edit">
             <select data-field="plat" data-id="${g.id}" style="font-weight:600;${g.plat==='Получена'?'color:#e5c76b':''}">
@@ -478,17 +490,23 @@ function renderGames(){
   });
   list.querySelectorAll('[data-field]').forEach(el=>el.onchange=async()=>{
     const id=el.dataset.id, field=el.dataset.field;
-    const val = field==='price' ? (el.value===''?null:Number(el.value)) : el.value;
+    const val = (field==='price'||field==='pct') ? (el.value===''?null:Number(el.value)) : el.value;
     const g=games.find(x=>x.id===id), upd={[field]:val};
     if(field==='progress'&&val==='Пройдено'&&g&&!g.doneDate) upd.doneDate=todayIso();
     await db.collection('games').doc(id).update(upd);
     if(g) Object.assign(g,upd);
     if(field==='plat'&&val==='Получена') sfx('trophy');
     if(field==='rate'&&val==='Изумительно') sfx('trophy');
-    if(field==='progress'||field==='rate'){ renderGames(); renderSeries(); }
+    if(field==='progress'||field==='rate'||field==='pct'||field==='startDate'){ renderGames(); renderSeries(); }
+    if(field==='progress'||field==='pct'||field==='startDate'){ try{ pushWidget(); }catch(_){} }
   });
 }
+// «Сейчас играю» для виджета на рабочем столе Android
+function nowPlaying(){ const mk=(g,src)=>({id:src+':'+g.id,title:g.title||'',platform:g.platform||'',pct:Number(g.pct)||0,start:g.startDate||'',cover:g.coverData||g.coverUrl||''});
+  return games.filter(g=>g.progress==='Играю').map(g=>mk(g,'g')).concat(digital.filter(d=>d.progress==='Играю').map(d=>mk(d,'d'))); }
+function pushWidget(){ try{ if(window.AndroidSave&&AndroidSave.setNowPlaying) AndroidSave.setNowPlaying(JSON.stringify(nowPlaying())); }catch(_){} }
 function updateCounts(){
+  try{ pushWidget(); }catch(_){}
   document.getElementById('cnt-shelf').textContent=games.length;
   document.getElementById('cnt-wish').textContent=wishes.length;
   { const cd=document.getElementById('cnt-digital'); if(cd) cd.textContent=digital.length; }
@@ -1549,7 +1567,7 @@ function openVoxel(){
   const idxList=()=>{ try{ return JSON.parse(localStorage.getItem(IDX_KEY)||'[]'); }catch(e){ return []; } };
   const idxWrite=l=>{ try{ localStorage.setItem(IDX_KEY,JSON.stringify(l)); }catch(e){} };
   const wkey=id=>'polka-vox-w-'+id;
-  let SET={sens:1,inv:0}; try{ Object.assign(SET,JSON.parse(localStorage.getItem(SET_KEY)||'{}')); }catch(e){}
+  let SET={sens:1,inv:0,one:0,abat:0,calm:0,side:'l',bsz:1.2}; try{ Object.assign(SET,JSON.parse(localStorage.getItem(SET_KEY)||'{}')); }catch(e){}
   const saveSet=()=>{ try{ localStorage.setItem(SET_KEY,JSON.stringify(SET)); }catch(e){} };
   function save(){
     if(!curId) return;
@@ -1644,6 +1662,9 @@ function openVoxel(){
   <div id="vxJR" style="position:absolute;display:none;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);pointer-events:none;z-index:2"><div id="vxJK" style="position:absolute;left:35px;top:35px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.45)"></div></div>
   <div id="vxStat" style="position:absolute;left:50%;transform:translateX(-50%);bottom:calc(56px + ${sf});width:min(348px,calc(100vw - 20px));display:flex;flex-direction:column;gap:3px;z-index:3;pointer-events:none"></div>
   <div id="vxHot" style="position:absolute;left:50%;transform:translateX(-50%);bottom:calc(12px + ${sf});display:flex;gap:3px;z-index:3;touch-action:none"></div>
+  <style>@keyframes vxr{from{transform:translate(-50%,-50%) scale(.3);opacity:.9}to{transform:translate(-50%,-50%) scale(1.7);opacity:0}}</style>
+  <div id="vxTap" style="position:absolute;width:56px;height:56px;border-radius:50%;border:3px solid #fff;pointer-events:none;opacity:0;z-index:2"></div>
+  <div id="vxOne" style="display:none;--bz:1.2"></div>
   <div id="vxM" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(5,7,16,.6);padding:16px;z-index:6;overflow:auto"></div>`;
   document.body.appendChild(Wd);
   const cv=Wd.querySelector('#vxC'), $=id=>Wd.querySelector('#'+id), MENU=$('vxM');
@@ -1809,12 +1830,18 @@ function openVoxel(){
   const inWater=()=>get(Math.floor(P.x),Math.floor(P.y+.1),Math.floor(P.z))===B.WATER;
   const ladderAt=(x,y,z)=>get(Math.floor(x),Math.floor(y),Math.floor(z))===B.LADDER;
   const onLadder=()=>!P.fly&&(ladderAt(P.x,P.y+.3,P.z)||ladderAt(P.x,P.y+1.3,P.z));
-  let sprintJ=false;
+  let sprintJ=false, autoWalk=false, goal=null, tapMode='walk', abT=0; const OF={f:0,b:0,l:0,r:0,u:0,d:0};
   const headWater=()=>get(Math.floor(P.x),Math.floor(P.y+1.62),Math.floor(P.z))===B.WATER;
   function step(dt){
     let fx=0,fz=0;
     if(keys.w||keys.ArrowUp) fz+=1; if(keys.s||keys.ArrowDown) fz-=1; if(keys.a||keys.ArrowLeft) fx-=1; if(keys.d||keys.ArrowRight) fx+=1;
     sprintJ=false; if(joy){ const jx=joy.x-joy.ox, jy=joy.y-joy.oy, m=Math.hypot(jx,jy); if(m>8){ const k=Math.min(1,m/55); fx+=jx/m*k; fz+=-jy/m*k; sprintJ=m>82&&jy<0; } }
+    if(SET.one){
+      P.yaw+=(OF.l-OF.r)*dt*1.9*SET.sens; P.pitch=clamp(P.pitch+(OF.u-OF.d)*dt*1.3*SET.sens,-1.55,1.55);
+      if(OF.f||autoWalk) fz+=1; if(OF.b) fz-=1;
+      if(goal){ const gx=goal.x-P.x, gz=goal.z-P.z, gd=Math.hypot(gx,gz); goal.t-=dt;
+        if(gd<.6||goal.t<=0) goal=null; else { const ty=Math.atan2(-gx,-gz); let df=ty-P.yaw; while(df>Math.PI) df-=6.2832; while(df<-Math.PI) df+=6.2832; P.yaw+=df*Math.min(1,dt*8); fz+=1; } }
+    }
     const m=Math.hypot(fx,fz); if(m>1){ fx/=m; fz/=m; }
     const sp=P.fly?9:(inWater()?2.6:((keys.Shift||sprintJ)?6.2:4.4));
     const wx=(-Math.sin(P.yaw)*fz+Math.cos(P.yaw)*fx)*sp, wz=(-Math.cos(P.yaw)*fz-Math.sin(P.yaw)*fx)*sp;
@@ -1832,8 +1859,8 @@ function openVoxel(){
   }
 
   /* ---------- луч ---------- */
-  function raycast(){
-    const cp=Math.cos(P.pitch), dx=-Math.sin(P.yaw)*cp, dy=Math.sin(P.pitch), dz=-Math.cos(P.yaw)*cp;
+  function raycast(dir){
+    const cp=Math.cos(P.pitch), dx=dir?dir[0]:-Math.sin(P.yaw)*cp, dy=dir?dir[1]:Math.sin(P.pitch), dz=dir?dir[2]:-Math.cos(P.yaw)*cp;
     const ox=P.x, oy=P.y+1.62, oz=P.z; let x=Math.floor(ox),y=Math.floor(oy),z=Math.floor(oz);
     const sx=dx>0?1:-1, sy=dy>0?1:-1, sz=dz>0?1:-1, tdx=Math.abs(1/(dx||1e-9)), tdy=Math.abs(1/(dy||1e-9)), tdz=Math.abs(1/(dz||1e-9));
     let tx=(dx>0?(x+1-ox):(ox-x))*tdx, ty=(dy>0?(y+1-oy):(oy-y))*tdy, tz=(dz>0?(z+1-oz):(oz-z))*tdz, px=x,py=y,pz=z, t=0;
@@ -1905,10 +1932,10 @@ function openVoxel(){
   function drawStat(){
     const e=$('vxStat'); if(!surv()){ e.innerHTML=''; return; }
     const air=ST.air<10?`<div style="display:flex;justify-content:flex-end;gap:1px">${Array.from({length:Math.ceil(ST.air)},bubIc).join('')}</div>`:'';
-    e.innerHTML=air+`<div style="display:flex;justify-content:space-between"><div style="display:flex;gap:1px">${row(heartIc,ST.hp)}</div><div style="display:flex;gap:1px;flex-direction:row-reverse">${row(legIc,ST.hun)}</div></div>`;
+    e.innerHTML=air+`<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:2px"><div style="display:flex;gap:1px">${row(heartIc,ST.hp)}</div><div style="display:flex;gap:1px;flex-direction:row-reverse">${row(legIc,ST.hun)}</div></div>`;
   }
   function hurt(n,kx,kz){
-    if(!surv()||dead) return;
+    if(!surv()||dead||SET.calm) return;
     ST.hp=Math.max(0,ST.hp-n); const hv=$('vxHurt'); hv.style.opacity=1; setTimeout(()=>{ const e=$('vxHurt'); if(e) e.style.opacity=0; },180);
     sfx('tick');
     if(kx!=null){ P.vx+=kx*5; P.vz+=kz*5; if(P.ground) P.vy=4.5; }
@@ -1930,7 +1957,7 @@ function openVoxel(){
   function survTick(dt){
     if(!surv()||dead) return;
     const sp=Math.hypot(P.vx,P.vz);
-    hunAcc+=dt*(.012+(sp>5?.03:sp>.5?.014:0)); if(hunAcc>=1){ hunAcc-=1; ST.hun=Math.max(0,ST.hun-1); }
+    if(!SET.calm) hunAcc+=dt*(.012+(sp>5?.03:sp>.5?.014:0)); if(hunAcc>=1){ hunAcc-=1; ST.hun=Math.max(0,ST.hun-1); }
     if(ST.hun>=18&&ST.hp<20){ regT+=dt; if(regT>=3){ regT=0; ST.hp=Math.min(20,ST.hp+1); } }
     else if(ST.hun<=0){ starveT+=dt; if(starveT>=4){ starveT=0; if(ST.hp>1) hurt(1); } }
     else { regT=0; starveT=0; }
@@ -2008,8 +2035,8 @@ function openVoxel(){
     sfx('tick');
     if(m.hp<=0){ m.dead=true; if(surv()) for(const [id,a,b] of T.drop){ const n=a+Math.floor(Math.random()*(b-a+1)); if(n>0) give(id,n); } }
   }
-  function rayMob(maxD){
-    const cp=Math.cos(P.pitch), d=[-Math.sin(P.yaw)*cp,Math.sin(P.pitch),-Math.cos(P.yaw)*cp], o=[P.x,P.y+1.62,P.z]; let best=null;
+  function rayMob(maxD,dir){
+    const cp=Math.cos(P.pitch), d=dir||[-Math.sin(P.yaw)*cp,Math.sin(P.pitch),-Math.cos(P.yaw)*cp], o=[P.x,P.y+1.62,P.z]; let best=null;
     for(const m of mobs){
       const T=MT[m.t], a=[m.x-T.w-.14,m.y-.05,m.z-T.w-.14], b=[m.x+T.w+.14,m.y+T.h+.15,m.z+T.w+.14]; let t0=0,t1=maxD,ok=true;
       for(let k=0;k<3;k++){
@@ -2061,8 +2088,8 @@ function openVoxel(){
     if(get(x,y+o,z)===B.DOOR) setBlock(x,y+o,z,B.DOOR,M[idx(x,y+o,z)]^4);
     sfx('pop');
   }
-  function actBreak(){
-    const h=raycast(), hm=rayMob(3.8);
+  function actBreak(dir){
+    const h=raycast(dir), hm=rayMob(dir?5:3.8,dir);
     if(hm&&(!h||hm.d<h.d)){ if(atkT>0) return; atkT=.3; attack(hm.m,dmgNow()); sweepMobs(); return; }
     if(!h||h.y===0) return;
     const b=h.b, m0=M[idx(h.x,h.y,h.z)];
@@ -2070,9 +2097,9 @@ function openVoxel(){
     setBlock(h.x,h.y,h.z,0,0); sfx('tick');
     if(surv()){ const d=dropOf(b); if(d) give(d,1); }
   }
-  function actPlace(){
+  function actPlace(dir){
     if(eat()) return;
-    const h=raycast(); if(!h) return;
+    const h=raycast(dir); if(!h) return;
     if(h.b===B.DOOR){ toggleDoor(h.x,h.y,h.z); return; }
     const id=hb[sel]; if(!id||id>=100) return; if(surv()&&cnt(id)<1) return;
     const x=h.px,y=h.py,z=h.pz; if(!inb(x,y,z)) return; const c=get(x,y,z); if(c!==0&&c!==B.WATER) return;
@@ -2134,6 +2161,12 @@ function openVoxel(){
     MENU.innerHTML=`<div class="mbox" style="max-width:340px"><h3>Блоки</h3><div class="meta" style="margin-bottom:8px">${esc(curName)}, ${surv()?'выживание':'творчество'}<br>Найдено дисков: ${got} из ${NDISC}<br>Зерно мира: <b>${seed}</b></div>
     <label>Чувствительность поворота</label><input type="range" id="vxSens" min="3" max="20" value="${Math.round(SET.sens*10)}" style="padding:0">
     <label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="vxInvY" ${SET.inv?'checked':''} style="width:auto"> Инвертировать вертикаль</label>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)"><b style="font-size:13px">Помощь в управлении</b>
+    <label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="vxOneC" ${SET.one?'checked':''} style="width:auto"> Режим «Один палец»</label>
+    <label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="vxAbC" ${SET.abat?'checked':''} style="width:auto"> Автобой: бить врагов рядом</label>
+    <label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="vxCalmC" ${SET.calm?'checked':''} style="width:auto"> Спокойный режим: без урона и голода</label>
+    <label style="margin-top:8px">Размер кнопок</label><input type="range" id="vxBsz" min="8" max="18" value="${Math.round((SET.bsz||1.2)*10)}" style="padding:0">
+    <label style="margin-top:8px">Кнопки движения</label><select id="vxSide"><option value="l" ${SET.side!=='r'?'selected':''}>Слева</option><option value="r" ${SET.side==='r'?'selected':''}>Справа</option></select></div>
     <div class="meta" style="margin:10px 0 0;font-size:12px;line-height:1.4">Тап: ломать и бить. Долгое нажатие: ставить, есть, открывать дверь. Джойстик: потяни дальше края для бега. ${surv()?'':'Двойной тап по стрелке прыжка включает полёт. '}Свайп по панели ячеек меняет выбор. На компьютере: WASD, мышь, пробел, 1–9, E.</div>
     <div class="row"><button class="ok" id="vxR">Продолжить</button></div>
     <div class="row"><button id="vxCopy">Копировать зерно</button><button id="vxSh">Снимок</button></div>
@@ -2143,11 +2176,17 @@ function openVoxel(){
     MENU.querySelector('#vxQ').onclick=close;
     MENU.querySelector('#vxSens').oninput=e=>{ SET.sens=(+e.target.value)/10; saveSet(); };
     MENU.querySelector('#vxInvY').onchange=e=>{ SET.inv=e.target.checked?1:0; saveSet(); };
+    const ap=()=>{ saveSet(); applyOne(); };
+    MENU.querySelector('#vxOneC').onchange=e=>{ SET.one=e.target.checked?1:0; ap(); };
+    MENU.querySelector('#vxAbC').onchange=e=>{ SET.abat=e.target.checked?1:0; saveSet(); };
+    MENU.querySelector('#vxCalmC').onchange=e=>{ SET.calm=e.target.checked?1:0; saveSet(); };
+    MENU.querySelector('#vxBsz').oninput=e=>{ SET.bsz=(+e.target.value)/10; ap(); };
+    MENU.querySelector('#vxSide').onchange=e=>{ SET.side=e.target.value; ap(); };
     MENU.querySelector('#vxCopy').onclick=()=>{ try{ navigator.clipboard.writeText(String(seed)).then(()=>banner('Зерно скопировано'),()=>{}); }catch(e){} };
     MENU.querySelector('#vxSh').onclick=()=>{ pause(false); setTimeout(()=>{ shotReq=1; },60); };
     MENU.querySelector('#vxW').onclick=()=>{ save(); showWorlds(); };
   }
-  function pause(p){ paused=p; if(p){ try{ document.exitPointerLock(); }catch(e){} } else { MENU.style.display='none'; last=performance.now(); } }
+  function pause(p){ paused=p; if(p){ autoWalk=false; goal=null; for(const k in OF) OF[k]=0; setAutoIcon(); try{ document.exitPointerLock(); }catch(e){} } else { MENU.style.display='none'; last=performance.now(); } }
 
   /* ---------- миры ---------- */
   function seedFrom(s){
@@ -2202,16 +2241,16 @@ function openVoxel(){
   cv.addEventListener('pointerdown',e=>{
     if(e.pointerType==='mouse'||paused) return;
     const x=e.clientX, y=e.clientY;
-    if(x<Wd.clientWidth*.45&&!joy){ joy={id:e.pointerId,ox:x,oy:y,x,y}; joyDraw(); }
-    else if(!look){ look={id:e.pointerId,x,y,sx:x,sy:y,t0:performance.now(),moved:false,done:false}; look.lp=setTimeout(()=>{ if(look&&!look.moved&&!look.done){ look.done=true; modePlace?actBreak():actPlace(); } },380); }
+    if(!SET.one&&x<Wd.clientWidth*.45&&!joy){ joy={id:e.pointerId,ox:x,oy:y,x,y}; joyDraw(); }
+    else if(!look){ look={id:e.pointerId,x,y,sx:x,sy:y,t0:performance.now(),moved:false,done:false}; look.lp=SET.one?0:setTimeout(()=>{ if(look&&!look.moved&&!look.done){ look.done=true; modePlace?actBreak():actPlace(); } },380); }
     try{ cv.setPointerCapture(e.pointerId); }catch(_){}
   });
   cv.addEventListener('pointermove',e=>{
     if(e.pointerType==='mouse') return;
     if(joy&&joy.id===e.pointerId){ joy.x=e.clientX; joy.y=e.clientY; joyDraw(); }
-    else if(look&&look.id===e.pointerId){ const dx=e.clientX-look.x, dy=e.clientY-look.y; look.x=e.clientX; look.y=e.clientY; if(Math.hypot(e.clientX-look.sx,e.clientY-look.sy)>9) look.moved=true; if(look.moved){ P.yaw-=dx*.006*SET.sens; P.pitch=clamp(P.pitch-dy*.006*SET.sens*(SET.inv?-1:1),-1.55,1.55); } }
+    else if(look&&look.id===e.pointerId){ const dx=e.clientX-look.x, dy=e.clientY-look.y; look.x=e.clientX; look.y=e.clientY; if(Math.hypot(e.clientX-look.sx,e.clientY-look.sy)>(SET.one?16:9)) look.moved=true; if(look.moved){ P.yaw-=dx*.006*SET.sens; P.pitch=clamp(P.pitch-dy*.006*SET.sens*(SET.inv?-1:1),-1.55,1.55); } }
   });
-  const pu=e=>{ try{ cv.releasePointerCapture(e.pointerId); }catch(_){} if(joy&&joy.id===e.pointerId){ joy=null; joyDraw(); } else if(look&&look.id===e.pointerId){ clearTimeout(look.lp); if(!look.moved&&!look.done){ modePlace?actPlace():actBreak(); } look=null; } };
+  const pu=e=>{ try{ cv.releasePointerCapture(e.pointerId); }catch(_){} if(joy&&joy.id===e.pointerId){ joy=null; joyDraw(); } else if(look&&look.id===e.pointerId){ clearTimeout(look.lp); if(!look.moved&&!look.done){ if(SET.one) tapAt(e.clientX,e.clientY); else (modePlace?actPlace():actBreak()); } look=null; } };
   cv.addEventListener('pointerup',pu); cv.addEventListener('pointercancel',pu);
   const hold=(id,fn)=>{ const b=$(id); b.onpointerdown=e=>{ e.stopPropagation(); fn(true); }; b.onpointerup=b.onpointerleave=b.onpointercancel=()=>fn(false); };
   hold('vxDown',v=>downHeld=v);
@@ -2227,6 +2266,61 @@ function openVoxel(){
   $('vxFly').onclick=toggleFly;
   $('vxMode').onclick=()=>{ modePlace=!modePlace; $('vxMode').innerHTML=modePlace?ICON.block:ICON.pick; banner(modePlace?'Тап ставит блок':'Тап ломает блок'); };
   $('vxInv').onclick=openInv; $('vxMenu').onclick=openMenu; $('vxShot').onclick=()=>{ shotReq=1; };
+
+  /* ---------- режим «Один палец» ---------- */
+  function screenDir(nx,ny){
+    const th=Math.tan(.6), asp=cv.width/cv.height, dx=(2*nx-1)*th*asp, dy=(1-2*ny)*th, cp=Math.cos(P.pitch), sp=Math.sin(P.pitch);
+    const x1=dx, y1=dy*cp+sp, z1=dy*sp-cp, cy=Math.cos(P.yaw), sy=Math.sin(P.yaw);
+    const X=x1*cy+z1*sy, Z=-x1*sy+z1*cy, l=Math.hypot(X,y1,Z); return [X/l,y1/l,Z/l];
+  }
+  function tapAt(cx,cy){
+    const r=cv.getBoundingClientRect(), dir=screenDir((cx-r.left)/r.width,(cy-r.top)/r.height);
+    const tp=$('vxTap'); tp.style.left=cx+'px'; tp.style.top=cy+'px'; tp.style.animation='none'; void tp.offsetWidth; tp.style.animation='vxr .45s ease-out';
+    if(tapMode==='walk'){ const h=raycast(dir); if(h&&!dead){ goal={x:h.px+.5,z:h.pz+.5,t:15}; autoWalk=false; setAutoIcon(); } else banner('Сюда не дойти'); }
+    else if(tapMode==='break') actBreak(dir); else actPlace(dir);
+  }
+  function autoBattle(dt){
+    if(!SET.abat||dead) return; abT-=dt; let best=null,bd=3;
+    for(const m of mobs){ if(!MT[m.t].hostile) continue; const d=Math.hypot(m.x-P.x,m.z-P.z); if(d<bd&&Math.abs(m.y-P.y)<2){ bd=d; best=m; } }
+    if(!best) return;
+    const ty=Math.atan2(-(best.x-P.x),-(best.z-P.z)); let df=ty-P.yaw; while(df>Math.PI) df-=6.2832; while(df<-Math.PI) df+=6.2832; P.yaw+=df*Math.min(1,dt*6);
+    if(abT<=0&&bd<2.6&&Math.abs(df)<.6){ abT=.55; attack(best,dmgNow()); sweepMobs(); }
+  }
+  const sv2=d=>`<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const ICON2={
+    up:sv2('<path d="M12 19V5M6 11l6-6 6 6"/>'), dn:sv2('<path d="M12 5v14M6 13l6 6 6-6"/>'), lf:sv2('<path d="M19 12H5M11 6l-6 6 6 6"/>'), rt:sv2('<path d="M5 12h14M13 6l6 6-6 6"/>'),
+    play:sv2('<path d="M8 5l11 7-11 7z"/>'), stop:sv2('<rect x="6" y="6" width="12" height="12" rx="2"/>'),
+    lu:sv2('<circle cx="12" cy="18" r="2"/><path d="M6 12l6-6 6 6"/>'), ld:sv2('<circle cx="12" cy="6" r="2"/><path d="M6 12l6 6 6-6"/>'),
+    jump:sv2('<path d="M6 14l6-6 6 6"/><path d="M6 20h12"/>'), foot:sv2('<path d="M8 4c2 0 3 2 3 4s-1 4-3 4-3-2-3-4 1-4 3-4z"/><path d="M16 10c2 0 3 2 3 4s-1 4-3 4-3-2-3-4 1-4 3-4z"/>')
+  };
+  const cs='width:calc(58px*var(--bz));height:calc(58px*var(--bz));border-radius:16px;border:1px solid rgba(255,255,255,.3);background:rgba(10,14,28,.6);display:flex;align-items:center;justify-content:center;touch-action:none;padding:0;';
+  function setAutoIcon(){ const b=$('vxAuto'); if(b) b.innerHTML=autoWalk?ICON2.stop:ICON2.play; }
+  function setTapIcon(){ const b=$('vxTapM'); if(b) b.innerHTML=tapMode==='walk'?ICON2.foot:tapMode==='break'?ICON.pick:ICON.block; }
+  function buildOne(){
+    const o=$('vxOne'); const e0=`<div></div>`;
+    const btn=(id,lab,ic)=>`<button id="${id}" aria-label="${lab}" style="${cs}">${ic}</button>`;
+    o.innerHTML=`<div id="vxDp" style="display:grid;grid-template-columns:repeat(3,calc(58px*var(--bz)));gap:6px;z-index:3">${e0}${btn('vxF','Вперёд',ICON2.up)}${e0}${btn('vxTL','Повернуть влево',ICON2.lf)}${btn('vxAuto','Идти сам',ICON2.play)}${btn('vxTR','Повернуть вправо',ICON2.rt)}${e0}${btn('vxB','Назад',ICON2.dn)}${e0}</div>
+      <div id="vxAc" style="display:grid;grid-template-columns:repeat(2,calc(58px*var(--bz)));gap:6px;z-index:3">${btn('vxJ1','Прыжок',ICON2.jump)}${btn('vxTapM','Что делает касание',ICON2.foot)}${btn('vxLU','Смотреть вверх',ICON2.lu)}${btn('vxLD','Смотреть вниз',ICON2.ld)}</div>`;
+    const hold=(id,fn)=>{ const b=$(id); b.onpointerdown=e=>{ e.stopPropagation(); e.preventDefault(); fn(1); try{ b.setPointerCapture(e.pointerId); }catch(_){} }; b.onpointerup=b.onpointercancel=()=>fn(0); };
+    hold('vxF',v=>{ OF.f=v; if(v) goal=null; }); hold('vxB',v=>{ OF.b=v; if(v){ goal=null; autoWalk=false; setAutoIcon(); } });
+    hold('vxTL',v=>OF.l=v); hold('vxTR',v=>OF.r=v); hold('vxLU',v=>OF.u=v); hold('vxLD',v=>OF.d=v);
+    hold('vxJ1',v=>{ jumpHeld=!!v; });
+    $('vxAuto').onclick=()=>{ autoWalk=!autoWalk; goal=null; setAutoIcon(); };
+    $('vxTapM').onclick=()=>{ tapMode=tapMode==='walk'?'break':tapMode==='break'?'place':'walk'; setTapIcon(); banner(tapMode==='walk'?'Касание: идти':tapMode==='break'?'Касание: ломать и бить':'Касание: ставить'); };
+    setTapIcon();
+  }
+  function applyOne(){
+    const on=!!SET.one, o=$('vxOne'), sf='env(safe-area-inset-bottom,0px)', st='env(safe-area-inset-top,0px)', L=SET.side!=='r';
+    o.style.display=on?'block':'none'; const bz=Math.max(.8,Math.min(SET.bsz||1.2,(Wd.clientWidth-24-28)/(5*58))); o.style.setProperty('--bz',bz.toFixed(3));
+    $('vxJump').style.display=on?'none':'flex'; $('vxMode').style.display=on?'none':'flex';
+    if(!on){ joy=null; joyDraw(); autoWalk=false; goal=null; for(const k in OF) OF[k]=0; setAutoIcon(); }
+    $('vxDp').style.cssText=`position:absolute;bottom:calc(64px + ${sf});${L?'left':'right'}:12px;display:grid;grid-template-columns:repeat(3,calc(58px*var(--bz)));gap:6px;z-index:3`;
+    $('vxAc').style.cssText=`position:absolute;bottom:calc(64px + ${sf});${L?'right':'left'}:12px;display:grid;grid-template-columns:repeat(2,calc(58px*var(--bz)));gap:6px;z-index:3`;
+    const stt=$('vxStat'), fl=$('vxFly'), dn=$('vxDown');
+    if(on){ stt.style.cssText=`position:absolute;left:12px;top:calc(42px + ${st});width:180px;display:flex;flex-direction:column;gap:3px;z-index:3;pointer-events:none`; fl.style.bottom='auto'; fl.style.top=`calc(66px + ${st})`; dn.style.bottom='auto'; dn.style.top=`calc(66px + ${st})`; dn.style.right='70px'; }
+    else { stt.style.cssText=`position:absolute;left:50%;transform:translateX(-50%);bottom:calc(56px + ${sf});width:min(348px,calc(100vw - 20px));display:flex;flex-direction:column;gap:2px;z-index:3;pointer-events:none`; fl.style.top='auto'; fl.style.bottom=`calc(180px + ${sf})`; dn.style.top='auto'; dn.style.bottom=`calc(72px + ${sf})`; dn.style.right='70px'; }
+  }
+  buildOne(); const onRs=()=>applyOne(); window.addEventListener('resize',onRs);
 
   /* ---------- мир: запуск ---------- */
   function newWorld(sv){
@@ -2252,7 +2346,7 @@ function openVoxel(){
       modePlace=false; $('vxMode').innerHTML=ICON.pick;
       chunks.forEach(c=>c.dirty=true); tStart=performance.now();
       spawnAnimals(9);
-      drawHot(); drawStat(); pause(false);
+      applyOne(); drawHot(); drawStat(); pause(false);
       banner(loaded?'С возвращением!':(surv()?'Выживание: добывай ресурсы, ночью выходят Тени':'Найди '+NDISC+' золотых дисков')); if(!loaded) saveT=1;
     },40);
   }
@@ -2266,7 +2360,7 @@ function openVoxel(){
     const w=Math.max(1,Math.floor(Wd.clientWidth*dpr*sc)), h=Math.max(1,Math.floor(Wd.clientHeight*dpr*sc));
     if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; }
     if(!paused){
-      step(dt); time+=dt; fallTick(); survTick(dt);
+      step(dt); time+=dt; fallTick(); survTick(dt); autoBattle(dt);
       for(const m of mobs) updMob(m,dt);
       sweepMobs();
       spawnT-=dt; if(spawnT<=0){ spawnT=2.5; spawnTick(); }
@@ -2303,7 +2397,7 @@ function openVoxel(){
     $('vxHud').textContent=`Диски ${got}/${NDISC}   ${d>.45?'День':'Ночь'} ${String(Math.floor(hh)).padStart(2,'0')}:${String(Math.floor((hh%1)*60)).padStart(2,'0')}${P.fly?'   Полёт':''}`;
   }
   function close(){
-    cancelAnimationFrame(raf); save(); document.removeEventListener('keydown',kd); document.removeEventListener('keyup',ku); document.removeEventListener('pointerlockchange',onLock);
+    cancelAnimationFrame(raf); save(); document.removeEventListener('keydown',kd); document.removeEventListener('keyup',ku); document.removeEventListener('pointerlockchange',onLock); window.removeEventListener('resize',onRs);
     try{ document.exitPointerLock(); }catch(e){} try{ const x=gl.getExtension('WEBGL_lose_context'); if(x) x.loseContext(); }catch(e){}
     Wd.remove(); refreshBest();
   }
@@ -6524,6 +6618,7 @@ function renderDigital(){
     ${(d.progress==='Пройдено'&&d.doneDate)?`<div class="meta">✅ Пройдено ${ruIso(d.doneDate)}</div>`:''}${rateTag(d)}
     <div class="inline-edit"><select data-df="progress" data-id="${d.id}">${DST.map(o=>`<option value="${o}" ${d.progress===o?'selected':''}>${o||'Статус'}</option>`).join('')}</select>${rateSel(d,'data-df="rate"')}
     <input type="number" data-df="price" data-id="${d.id}" placeholder="Цена" style="max-width:84px" value="${d.price!=null?esc(String(d.price)):''}"><input type="number" data-df="year" data-id="${d.id}" placeholder="Год" style="max-width:70px" value="${okYear(d.year)?d.year:''}"></div>
+    ${playRow(d,'data-df')}
     <div class="inline-edit"><select data-df="source" data-id="${d.id}">${DSRC.map(o=>`<option ${d.source===o?'selected':''}>${o}</option>`).join('')}</select>
     <select data-df="platform" data-id="${d.id}">${['PS5','PS4'].map(o=>`<option ${d.platform===o?'selected':''}>${o}</option>`).join('')}</select></div>
     <div class="inline-edit"><button class="mv" data-dpick="${d.id}">🔎 Выбрать обложку</button><label class="mv">📷 Своя<input type="file" accept="image/*" data-dcover="${d.id}" hidden></label></div>
@@ -6535,7 +6630,7 @@ function initDigital(){
   list.addEventListener('change',async e=>{
     const el=e.target; if(el.dataset.df){
       const d=digital.find(x=>x.id===el.dataset.id); if(!d) return;
-      const num=el.dataset.df==='price'||el.dataset.df==='year';
+      const num=el.dataset.df==='price'||el.dataset.df==='year'||el.dataset.df==='pct';
       const v=num?(el.value===''?null:Number(el.value)):(el.dataset.df==='title'?el.value.trim():el.value);
       if(el.dataset.df==='title'&&!v){ renderDigital(); return; }
       const upd={[el.dataset.df]:v};
@@ -6543,6 +6638,7 @@ function initDigital(){
       await db.collection('digital').doc(d.id).update(upd); Object.assign(d,upd);
       if(el.dataset.df==='rate'&&v==='Изумительно') sfx('trophy');
       renderDigital(); updateCounts(); try{ renderSeries(); }catch(_){}
+      try{ pushWidget(); }catch(_){}
     } else if(el.dataset.dcover){
       const f=el.files[0], d=digital.find(x=>x.id===el.dataset.dcover); if(!f||!d) return;
       try{ const coverData=await makeThumb(f,420,236); await db.collection('digital').doc(d.id).update({coverData,coverUrl:null}); d.coverData=coverData; d.coverUrl=null; renderDigital(); }catch(err){ dStatus('Не удалось загрузить обложку: '+(err.message||err)); }
@@ -6573,6 +6669,77 @@ function initDigital(){
   },()=>{ ['d_title','d_price','d_year'].forEach(id=>document.getElementById(id).value=''); });
 }
 
+</script>
+<script>
+(function(){
+const ICO={
+shelf:'<path d="M4 20V6a2 2 0 0 1 2-2h3v16M9 20V4m0 16h9a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3v14"/>',
+digital:'<path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 9.5 4 4 0 0 1 17.5 18z"/>',
+wish:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+stats:'<path d="M5 20V11M12 20V4M19 20v-6"/>',
+calendar:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+games:'<path d="M7 8h10a4 4 0 0 1 4 4l-1 4a2 2 0 0 1-3.4.8L15 15H9l-1.6 1.8A2 2 0 0 1 4 16l-1-4a4 4 0 0 1 4-4zM8 10.5v3M6.5 12h3"/><circle cx="16" cy="11" r=".6"/>',
+disc:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/>',
+search:'<circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/>',
+save:'<path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6"/>',
+image:'<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-4 4 3 3-2 4 3"/>',
+check:'<circle cx="12" cy="12" r="8"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/>',
+trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3M12 13v4M8.5 20h7M10 17h4"/>',
+tool:'<path d="M14.5 6.5a4 4 0 0 0-5 5L4 17l3 3 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2-.5-.5-2z"/>',
+note:'<path d="M6 4h9l3 3v13H6zM9 11h6M9 15h6"/>',
+pencil:'<path d="m5 19 1-4L16 5l3 3L9 18zM14 7l3 3"/>',
+camera:'<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/>',
+bulb:'<path d="M9 17h6M10 20h4M8.5 14.5A5.5 5.5 0 1 1 15.5 14.5c-.9.7-1.5 1.5-1.5 2.5h-4c0-1-.6-1.8-1.5-2.5z"/>',
+coin:'<circle cx="12" cy="12" r="8"/><path d="M14.5 9.5c-.5-1-1.4-1.5-2.5-1.5-1.4 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1.1 0-2-.5-2.5-1.5M12 6.5V8m0 8v1.5"/>',
+books:'<path d="M5 4h4v16H5zM9 4h4v16H9zM14.5 5.5l3.8-1 3 14.5-3.8 1z"/>',
+clock:'<circle cx="12" cy="13" r="7"/><path d="M12 9v4l2.5 2M9 3h6"/>',
+target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".8"/>',
+hash:'<path d="M9 4 7 20M17 4l-2 16M5 9h15M4 15h15"/>',
+star:'<path d="m12 4 2.4 5 5.6.7-4.1 3.8 1.1 5.5L12 16.3 7 19l1.1-5.5L4 9.7 9.6 9z"/>',
+gift:'<rect x="4" y="9" width="16" height="11" rx="1"/><path d="M3 9h18M12 9v11M12 9c-3 0-4.5-1-4.5-2.5S9 4 10.5 5 12 9 12 9zm0 0c3 0 4.5-1 4.5-2.5S15 4 13.5 5 12 9 12 9z"/>',
+x:'<circle cx="12" cy="12" r="8"/><path d="m9 9 6 6M15 9l-6 6"/>',
+hourglass:'<path d="M7 4h10M7 20h10M8 4c0 4 4 5 4 8s-4 4-4 8M16 4c0 4-4 5-4 8s4 4 4 8"/>',
+pause:'<path d="M9 5v14M15 5v14"/>',
+download:'<path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/>',
+trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13M10 11v6M14 11v6"/>',
+meh:'<circle cx="12" cy="12" r="8"/><path d="M9 15h6M9.5 10v.5M14.5 10v.5"/>',
+thumb:'<path d="M8 11v9H5v-9zM8 11l3-6c1.5 0 2.5 1 2.2 2.5L12.7 10H18a2 2 0 0 1 2 2.4l-1 5.6a2 2 0 0 1-2 1.7H8"/>',
+help:'<circle cx="12" cy="12" r="8"/><path d="M9.8 9.5a2.3 2.3 0 1 1 3.3 2c-.7.4-1.1.9-1.1 1.7M12 16.5v.2"/>',
+sound:'<path d="M5 10v4h3l4 3V7l-4 3zM16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"/>',
+mute:'<path d="M5 10v4h3l4 3V7l-4 3zM16 9.5l5 5M21 9.5l-5 5"/>'
+};
+const CLR={check:'c-ok',trophy:'c-gold',download:'c-ac',x:'c-bad',star:'c-gold',coin:'c-gold'};
+const EM={'💿':'disc','📀':'disc','🎮':'games','🔍':'search','💾':'save','🖼':'image','✅':'check','🎉':'check','🏆':'trophy','🛠':'tool','📝':'note','✏':'pencil','📷':'camera','💡':'bulb','💰':'coin','💵':'coin','💸':'coin','📚':'books','🕰':'clock','🔥':'clock','📅':'calendar','🎯':'target','🔢':'hash','⭐':'star','🎁':'gift','❌':'x','⏳':'hourglass','⏸':'pause','📥':'download','🗑':'trash','😐':'meh','👍':'thumb','❓':'help','🔊':'sound','🔇':'mute'};
+const RE=new RegExp('('+Object.keys(EM).join('|')+')\\uFE0F?','g');
+const NS='http://www.w3.org/2000/svg';
+function mk(n){const s=document.createElementNS(NS,'svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('class','ic'+(CLR[n]?' '+CLR[n]:''));s.setAttribute('aria-hidden','true');s.innerHTML=ICO[n];return s;}
+const SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,OPTION:1,SELECT:1,TITLE:1};
+function fix(t){
+  const p=t.parentNode; if(!p||!t.nodeValue||!/[^\x00- ]/.test(t.nodeValue)) return;
+  RE.lastIndex=0; if(!RE.test(t.nodeValue)) return;
+  if(SKIP[p.nodeName]){ t.nodeValue=t.nodeValue.replace(RE,'').replace(/^\s+/,''); return; }
+  RE.lastIndex=0; const s=t.nodeValue, f=document.createDocumentFragment(); let last=0,m;
+  while((m=RE.exec(s))){ if(m.index>last) f.appendChild(document.createTextNode(s.slice(last,m.index)));
+    f.appendChild(mk(EM[m[1]])); last=RE.lastIndex; }
+  if(last<s.length) f.appendChild(document.createTextNode(s.slice(last)));
+  p.replaceChild(f,t);
+}
+function walk(n){
+  if(n.nodeType===3){ fix(n); return; }
+  if(n.nodeType!==1||n.nodeName==='SVG'||n.nodeName==='svg'||n.closest&&!n.closest('header,main')) return;
+  if(n.dataset&&n.dataset.ic&&!n.firstChild){ n.appendChild(mk(n.dataset.ic)); return; }
+  const w=document.createTreeWalker(n,NodeFilter.SHOW_TEXT),a=[]; while(w.nextNode()) a.push(w.currentNode);
+  a.forEach(fix);
+  n.querySelectorAll&&n.querySelectorAll('[data-ic]').forEach(e=>{ if(!e.firstChild) e.appendChild(mk(e.dataset.ic)); });
+}
+const root=document.body;
+walk(document.querySelector('header')); walk(document.querySelector('main'));
+new MutationObserver(ms=>{ for(const m of ms){
+  if(m.type==='characterData'){ if(m.target.parentNode&&m.target.parentNode.closest('header,main')) fix(m.target); }
+  else m.addedNodes.forEach(walk);
+}}).observe(root,{childList:true,subtree:true,characterData:true});
+window._ui={walk};
+})();
 </script>
 </body>
 </html>
