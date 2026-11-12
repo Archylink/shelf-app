@@ -14,6 +14,8 @@ android {
         vectorDrawables.useSupportLibrary = true
         buildConfigField 'boolean', 'DONATIONS_GOOGLE', 'false'
         buildConfigField 'boolean', 'FULL_EMULATOR', 'true'
+        buildConfigField 'String', 'VERSION_NAME', '"1.7.8"'
+        buildConfigField 'String', 'FLAVOR', '""'
         externalNativeBuild {
             ndkBuild {
                 abiFilters 'arm64-v8a'
