@@ -163,6 +163,9 @@ public class MicroLoader {
 			IllegalAccessException, NoSuchMethodException, InvocationTargetException, IOException {
 		if (BuildConfig.FULL_EMULATOR) {
 			File dexSource = new File(appDir, Config.MIDLET_DEX_FILE);
+			// Android 14+: динамически загружаемый dex обязан быть только для чтения
+			//noinspection ResultOfMethodCallIgnored
+			dexSource.setReadOnly();
 			File codeCacheDir = SDK_INT >= LOLLIPOP ? context.getCodeCacheDir() : context.getCacheDir();
 			File dexOptDir = new File(codeCacheDir, Config.DEX_OPT_CACHE_DIR);
 			if (dexOptDir.exists()) {
