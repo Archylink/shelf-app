@@ -17,6 +17,8 @@ android {
         externalNativeBuild {
             ndkBuild {
                 abiFilters 'arm64-v8a'
+                cFlags '-Wno-int-conversion', '-Wno-incompatible-pointer-types', '-Wno-implicit-function-declaration'
+                cppFlags '-Wno-int-conversion', '-Wno-incompatible-pointer-types'
             }
         }
     }
