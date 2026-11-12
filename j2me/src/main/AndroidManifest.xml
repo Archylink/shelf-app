@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:installLocation="auto">
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+    <uses-feature android:name="android.hardware.bluetooth" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <application>
+        <activity android:theme="@style/AppTheme"
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:mimeType="application/java" />
+                <data android:mimeType="application/java-archive" />
+                <data android:mimeType="application/x-java-archive" />
+                <data android:mimeType="text/vnd.sun.j2me.app-descriptor" />
+                <data android:host="*" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:mimeType="text/vnd.sun.j2me.app-descriptor" />
+                <data android:host="*" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:mimeType="*/*" />
+                <data android:host="*" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:pathPattern=".*.jar" />
+                <data android:pathPattern=".*..*.jar" />
+                <data android:pathPattern=".*..*..*.jar" />
+                <data android:pathPattern=".*..*..*..*.jar" />
+                <data android:pathPattern=".*.JAR" />
+                <data android:pathPattern=".*..*.JAR" />
+                <data android:pathPattern=".*..*..*.JAR" />
+                <data android:pathPattern=".*..*..*..*.JAR" />
+                <data android:pathPattern=".*.jad" />
+                <data android:pathPattern=".*..*.jad" />
+                <data android:pathPattern=".*..*..*.jad" />
+                <data android:pathPattern=".*..*..*..*.jad" />
+                <data android:pathPattern=".*.JAD" />
+                <data android:pathPattern=".*..*.JAD" />
+                <data android:pathPattern=".*..*..*.JAD" />
+                <data android:pathPattern=".*..*..*..*.JAD" />
+                <data android:pathPattern=".*.kjx" />
+                <data android:pathPattern=".*..*.kjx" />
+                <data android:pathPattern=".*..*..*.kjx" />
+                <data android:pathPattern=".*..*..*..*.kjx" />
+                <data android:pathPattern=".*.KJX" />
+                <data android:pathPattern=".*..*.KJX" />
+                <data android:pathPattern=".*..*..*.KJX" />
+                <data android:pathPattern=".*..*..*..*.KJX" />
+            </intent-filter>
+        </activity>
+        <activity android:theme="@style/AppTheme"
+            android:name=".config.ConfigActivity"
+            android:exported="true"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="javax.microedition.shell.MicroActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize|uiMode"
+            android:process=":midlet" />
+        <activity android:theme="@style/AppTheme" android:name=".settings.SettingsActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:theme="@style/AppTheme" android:name=".settings.KeyMapperActivity" android:exported="false" />
+        <activity
+            android:name=".filepicker.FilteredFilePickerActivity"
+            android:exported="false"
+            android:theme="@style/FilePickerTheme" />
+        <activity android:theme="@style/AppTheme" android:name=".config.ProfilesActivity" android:exported="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/nnf_provider_paths" />
+        </provider>
+        <activity android:theme="@style/AppTheme" android:name="com.nokia.mid.ui.NotificationActivity" />
+    </application>
+
+</manifest>

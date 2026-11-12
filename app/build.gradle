@@ -15,6 +15,8 @@ android {
         targetSdk 34
         versionCode vc
         versionName "1.0." + vc
+        ndk { abiFilters 'arm64-v8a' }
+        resourceConfigurations += ['en', 'ru']
     }
 
     signingConfigs {
@@ -48,4 +50,5 @@ android {
 
 dependencies {
     implementation 'androidx.webkit:webkit:1.11.0'
+    implementation project(':j2me')
 }

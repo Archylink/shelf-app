@@ -2,7 +2,7 @@ name: Build APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ j2me ]
   workflow_dispatch:
 
 permissions:
@@ -22,6 +22,11 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
+
+      - name: Install NDK
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;26.1.10909125" | tail -2
 
       - name: Restore signing key
         env:
@@ -44,4 +49,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp app/build/outputs/apk/release/*.apk polka.apk
-          gh release create v${{ github.run_number }} polka.apk --title "v${{ github.run_number }}" --notes "Build ${{ github.run_number }}" --latest
+          gh release create j2me-v${{ github.run_number }} polka.apk --title "j2me-v${{ github.run_number }}" --notes "Build ${{ github.run_number }}" --prerelease --latest=false

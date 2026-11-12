@@ -6,9 +6,13 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
+        android:name="ru.playsoftware.j2meloader.EmulatorApplication"
         android:label="Моя полка"
         android:icon="@mipmap/ic_launcher"
-        android:theme="@style/AppTheme"
+        android:theme="@style/PolkaTheme"
+        android:largeHeap="true"
+        android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true"
         android:usesCleartextTraffic="false"
         android:hardwareAccelerated="true">
 

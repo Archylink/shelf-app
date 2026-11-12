@@ -294,6 +294,16 @@ public class MainActivity extends Activity {
 
     private class Bridge {
         @JavascriptInterface
+        public void openRetro() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    startActivity(new Intent(MainActivity.this, ru.playsoftware.j2meloader.MainActivity.class));
+                }
+            });
+        }
+
+        @JavascriptInterface
         public void shareImage(String name, String b64) {
             try {
                 byte[] data = Base64.decode(b64, Base64.DEFAULT);
