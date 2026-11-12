@@ -294,6 +294,35 @@ public class MainActivity extends Activity {
 
     private class Bridge {
         @JavascriptInterface
+        public void shareImage(String name, String b64) {
+            try {
+                byte[] data = Base64.decode(b64, Base64.DEFAULT);
+                ContentValues v = new ContentValues();
+                v.put(MediaStore.Images.Media.DISPLAY_NAME, name);
+                v.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                v.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Моя полка");
+                final Uri u = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, v);
+                if (u == null) return;
+                OutputStream o = getContentResolver().openOutputStream(u);
+                if (o == null) return;
+                o.write(data);
+                o.close();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent i = new Intent(Intent.ACTION_SEND);
+                        i.setType("image/jpeg");
+                        i.putExtra(Intent.EXTRA_STREAM, u);
+                        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        startActivity(Intent.createChooser(i, "Поделиться"));
+                    }
+                });
+            } catch (Exception e) {
+                toast("Не удалось поделиться картинкой");
+            }
+        }
+
+        @JavascriptInterface
         public void setNowPlaying(String json) {
             NowWidget.setData(getApplicationContext(), json);
         }
