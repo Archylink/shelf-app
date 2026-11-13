@@ -2,7 +2,7 @@ name: Build APK
 
 on:
   push:
-    branches: [ j2me ]
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -49,4 +49,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp app/build/outputs/apk/release/*.apk polka.apk
-          gh release create j2me-v${{ github.run_number }} polka.apk --title "j2me-v${{ github.run_number }}" --notes "Build ${{ github.run_number }}" --prerelease --latest=false
+          gh release create v${{ github.run_number }} polka.apk --title "v${{ github.run_number }}" --notes "Build ${{ github.run_number }}" --latest
