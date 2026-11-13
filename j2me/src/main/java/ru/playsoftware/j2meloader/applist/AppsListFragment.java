@@ -269,7 +269,7 @@ public class AppsListFragment extends ListFragment {
 		Bitmap bitmap = AppUtils.getIconBitmap(appItem);
 		IconCompat icon;
 		if (bitmap == null) {
-			icon = IconCompat.createWithResource(activity, R.mipmap.ic_launcher);
+			icon = IconCompat.createWithResource(activity, R.drawable.ic_j2me_default);
 		} else {
 			int width = bitmap.getWidth();
 			int height = bitmap.getHeight();

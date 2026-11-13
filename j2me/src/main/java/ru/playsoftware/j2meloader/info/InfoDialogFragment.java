@@ -44,7 +44,7 @@ public class InfoDialogFragment extends DialogFragment {
 		tv.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, 0);
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		builder.setTitle(R.string.app_name)
-				.setIcon(R.mipmap.ic_launcher)
+				.setIcon(R.drawable.ic_j2me_default)
 				.setView(tv);
 		return builder.create();
 	}

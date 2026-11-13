@@ -126,7 +126,7 @@ public class SoftNotificationImpl extends SoftNotification {
 			if (bitmap != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 				builder.setSmallIcon(IconCompat.createWithBitmap(bitmap));
 			} else {
-				builder.setSmallIcon(R.mipmap.ic_launcher);
+				builder.setSmallIcon(R.drawable.ic_j2me_default);
 			}
 			builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
 			builder.setAutoCancel(true);

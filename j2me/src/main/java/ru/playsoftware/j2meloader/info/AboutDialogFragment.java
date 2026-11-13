@@ -53,7 +53,7 @@ public class AboutDialogFragment extends DialogFragment {
 		tv.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, 0);
 		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
 		builder.setTitle(R.string.app_name)
-				.setIcon(R.mipmap.ic_launcher)
+				.setIcon(R.drawable.ic_j2me_default)
 				.setView(tv)
 				.setPositiveButton(R.string.licenses, (dialog, which) -> {
 					LicensesDialogFragment licensesDialogFragment = new LicensesDialogFragment();

@@ -36,7 +36,7 @@ public class LicensesDialogFragment extends DialogFragment {
 		CharSequence message = HtmlCompat.fromHtml(string, HtmlCompat.FROM_HTML_MODE_LEGACY);
 		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
 		builder.setTitle(R.string.licenses)
-				.setIcon(R.mipmap.ic_launcher)
+				.setIcon(R.drawable.ic_j2me_default)
 				.setMessage(message);
 		return builder.create();
 	}

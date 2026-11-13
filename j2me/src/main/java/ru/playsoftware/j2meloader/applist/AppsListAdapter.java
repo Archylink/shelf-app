@@ -73,7 +73,7 @@ public class AppsListAdapter extends BaseAdapter implements Filterable {
 			icon.setFilterBitmap(false);
 			holder.binding.icon.setImageDrawable(icon);
 		} else {
-			holder.binding.icon.setImageResource(R.mipmap.ic_launcher);
+			holder.binding.icon.setImageResource(R.drawable.ic_j2me_default);
 		}
 		holder.binding.name.setText(item.getTitle());
 		holder.binding.author.setText(item.getAuthor());

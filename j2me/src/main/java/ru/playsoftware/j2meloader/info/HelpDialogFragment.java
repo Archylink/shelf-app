@@ -44,7 +44,7 @@ public class HelpDialogFragment extends DialogFragment {
 		tv.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		builder.setTitle(R.string.help)
-				.setIcon(R.mipmap.ic_launcher)
+				.setIcon(R.drawable.ic_j2me_default)
 				.setView(tv);
 		return builder.create();
 	}

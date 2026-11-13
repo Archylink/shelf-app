@@ -110,7 +110,7 @@ public class InstallerDialog extends DialogFragment {
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		binding = DialogInstallerBinding.inflate(LayoutInflater.from(getContext()));
 		mDialog = new AlertDialog.Builder(requireActivity(), getTheme())
-				.setIcon(R.mipmap.ic_launcher)
+				.setIcon(R.drawable.ic_j2me_default)
 				.setView(binding.getRoot())
 				.setTitle("MIDlet installer")
 				.setMessage("")
