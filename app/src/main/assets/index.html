@@ -111,9 +111,18 @@ button{touch-action:manipulation}
 .tab{justify-content:flex-start}
 h1 .ic{width:1.05em;height:1.05em;margin-right:.35em;vertical-align:-.12em}
 .ic.c-ok{color:var(--accent2)}.ic.c-gold{color:var(--gold)}.ic.c-bad{color:var(--danger)}.ic.c-ac{color:var(--accent)}
+@keyframes eggSway{0%,100%{transform:rotate(0)}20%{transform:rotate(-7deg) translateY(-2px)}50%{transform:rotate(5deg)}75%{transform:rotate(-3deg)}}
+img.cover.sway{transform-origin:50% 100%;animation:eggSway .9s ease-in-out both}
+@keyframes eggLift{0%{transform:scale(1);box-shadow:none}35%{transform:scale(1.4) rotate(-4deg);box-shadow:0 18px 30px rgba(0,0,0,.5);z-index:5;position:relative}70%{transform:scale(1.4) rotate(-4deg);box-shadow:0 18px 30px rgba(0,0,0,.5)}100%{transform:scale(1);box-shadow:none}}
+img.cover.lift{animation:eggLift 1s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes eggPad{0%,100%{transform:translate(0,0)}15%{transform:translate(-2px,1px) rotate(-8deg)}30%{transform:translate(2px,-1px) rotate(8deg)}45%{transform:translate(-2px,0) rotate(-8deg)}60%{transform:translate(2px,1px) rotate(8deg)}80%{transform:translate(-1px,0) rotate(-4deg)}}
+.ico-h.padhit{display:inline-block;animation:eggPad .55s linear}
+html.px body>header,html.px body>main{filter:url(#gbf);image-rendering:pixelated}
+html.px img{image-rendering:pixelated}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="gbf" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values=".33 .59 .11 0 0 .33 .59 .11 0 0 .33 .59 .11 0 0 0 0 0 1 0"/><feComponentTransfer><feFuncR type="discrete" tableValues=".06 .19 .55 .61"/><feFuncG type="discrete" tableValues=".22 .38 .67 .74"/><feFuncB type="discrete" tableValues=".06 .19 .06 .06"/></feComponentTransfer></filter></svg>
 <header>
   <h1><span class="ico-h" data-ic="games"></span>Моя полка</h1>
   <div class="tabs">
@@ -1198,6 +1207,8 @@ function pinOk(e){ return /^\d{4}-\d{2}-\d{2}$/.test(e.date||'') && Date.now()<n
 function pinToggle(id){ let a=pinList(); a=a.includes(id)?a.filter(x=>x!==id):a.concat(id); try{ localStorage.setItem(PIN_KEY,JSON.stringify(a)); }catch(_){} tickCountdown(); }
 function pinnedCountdowns(){ const ids=pinList(); return (typeof events!=='undefined'?events:[]).filter(e=>ids.includes(e.id)&&pinOk(e)).sort((a,b)=>a.date.localeCompare(b.date)).map(e=>({label:e.title+' · '+e.date.split('-').reverse().slice(0,2).join('.'),date:e.date+'T00:00:00+03:00'})); }
 function fmtLeft(ms){const d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),m=Math.floor(ms%36e5/6e4),sc=Math.floor(ms%6e4/1e3);return `⏳ ${d} дн ${h}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}`;}
+window._cdN=0;
+function cdQuip(k,def){ const L=k?['Ждём 19 ноября','Диск уже заказан?','Ты уже спрашивал','Предзагрузка не ускорит дату','Пока можно пройти что-то с полки']:['Скоро','Совсем скоро','Ты уже спрашивал','Время идёт и без тебя','Осталось дожить']; return window._cdN?L[(window._cdN-1)%L.length]:def; }
 function tickCountdown(){
   document.querySelectorAll('.cdl').forEach(x=>{const ms=new Date(x.dataset.d+'T00:00:00+03:00')-new Date();x.textContent=ms>0?fmtLeft(ms):'🎉 Вышла!';});
   const el=document.getElementById('countdown'); if(!el) return;
@@ -1205,10 +1216,10 @@ function tickCountdown(){
   el.style.display=live.length?'':'none';
   el.innerHTML=live.map(c=>{
     const ms=new Date(c.date)-new Date();
-    if(ms<=0&&c.gif) return `<div><img src="${GIF_SOON}" alt="скоро" style="width:100%;display:block;border-radius:12px;margin-bottom:6px"><span>📥 Предзагрузка GTA VI началась!</span></div>`;
-    if(ms<=0) return `<div><b>Уже! 🎉</b><span>${c.label}</span></div>`;
+    if(ms<=0&&c.gif) return `<div><img src="${GIF_SOON}" alt="скоро" style="width:100%;display:block;border-radius:12px;margin-bottom:6px"><span>${cdQuip(1,'Предзагрузка GTA VI началась!')}</span></div>`;
+    if(ms<=0) return `<div><b>Уже! 🎉</b><span>${cdQuip(0,c.label)}</span></div>`;
     const d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),m=Math.floor(ms%36e5/6e4),sc=Math.floor(ms%6e4/1e3);
-    return `<div><b>${d} дн ${h}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}</b><span>${c.label}</span></div>`;
+    return `<div><b>${d} дн ${h}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}</b><span>${cdQuip(0,c.label)}</span></div>`;
   }).join('');
 }
 tickCountdown(); setInterval(tickCountdown,1000);
@@ -6445,7 +6456,7 @@ function openTavrika(){
 
 /* ---------- Секреты ---------- */
 (function(){
-  const KEY='polka-eggs', TOTAL=2; let found={};
+  const KEY='polka-eggs', TOTAL=10; let found={};
   try{ found=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){}
   const mark=id=>{ if(!found[id]){ found[id]=1; try{ localStorage.setItem(KEY,JSON.stringify(found)); }catch(e){} } return Object.keys(found).length; };
   const st=document.createElement('style');
@@ -6485,6 +6496,115 @@ function openTavrika(){
     const v=t.value.trim().toLowerCase();
     if(CH[v]){ t.value=''; t.dispatchEvent(new Event('input',{bubbles:true})); mark('cheat'); show(DISC,CH[v][0],CH[v][1]); }
   });
+  // ===== Сенсорные секреты =====
+  const vib=p=>{ try{ navigator.vibrate&&navigator.vibrate(p); }catch(e){} };
+  const PAD='<svg viewBox="0 0 96 96" aria-hidden="true"><path d="M18 34c-8 4-13 24-10 36 2 8 10 9 15 3l10-13h30l10 13c5 6 13 5 15-3 3-12-2-32-10-36-6-3-12-2-17 2H35c-5-4-11-5-17-2z" fill="#e8ecff" stroke="#6f8cff" stroke-width="3"/><rect x="40" y="36" width="16" height="9" rx="3" fill="#b8c2f0"/><path d="M27 44v10M22 49h10" stroke="#2a3050" stroke-width="3.2" stroke-linecap="round"/><circle cx="68" cy="44" r="2.6" fill="#2a3050"/><circle cx="74" cy="50" r="2.6" fill="#2a3050"/><circle cx="68" cy="56" r="2.6" fill="#2a3050"/><circle cx="62" cy="50" r="2.6" fill="#2a3050"/></svg>';
+  const FROG='<svg viewBox="0 0 96 96" aria-hidden="true"><rect x="12" y="12" width="72" height="72" rx="6" fill="#9bbc0f" stroke="#0f380f" stroke-width="4"/><path d="M28 34h8v8h-8zM60 34h8v8h-8zM28 56h40v8H28z" fill="#0f380f"/></svg>';
+  // 1. Три касания по значку геймпада
+  const ic=document.querySelector('header h1 .ico-h'); let it=0, itt=0;
+  if(ic) ic.addEventListener('click',e=>{
+    e.stopPropagation(); it++; clearTimeout(itt); itt=setTimeout(()=>{it=0;},700);
+    if(it>=3){ it=0; ic.classList.remove('padhit'); void ic.offsetWidth; ic.classList.add('padhit'); vib([40,50,40,50,90]); mark('pad');
+      setTimeout(()=>show(PAD,'Отдача','Геймпад дрожит в руках. Тачпад, кстати, тоже кликабельный.'),420); }
+  });
+  // 2. Быстрый свайп вдоль полки: обложки качаются по очереди
+  let sw=null;
+  document.addEventListener('touchstart',e=>{ const s=document.getElementById('shelf'); if(!s||!s.classList.contains('active')||e.touches.length!==1||(e.target.closest&&e.target.closest('input,select,textarea,button,.mback'))){ sw=null; return; } const t=e.touches[0]; sw={x:t.clientX,y:t.clientY,t:Date.now()}; },{passive:true});
+  document.addEventListener('touchend',e=>{
+    if(!sw) return; const t=e.changedTouches[0], dx=t.clientX-sw.x, dy=t.clientY-sw.y, dt=Date.now()-sw.t; sw=null;
+    if(Math.abs(dx)<140||Math.abs(dy)>50||dt>260) return;
+    const vis=[...document.querySelectorAll('#shelf img.cover')].filter(i=>{ const r=i.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight; });
+    if(!vis.length) return;
+    vis.forEach((i,k)=>{ i.style.animationDelay=(k*70)+'ms'; i.classList.remove('sway'); void i.offsetWidth; i.classList.add('sway'); setTimeout(()=>{ i.classList.remove('sway'); i.style.animationDelay=''; },1400+k*70); });
+    mark('sway');
+  },{passive:true});
+  // 3. Фигуры PlayStation пальцем (долгое нажатие на название, потом рисуешь)
+  function simp(p,e){ if(p.length<3) return p; const a=p[0],b=p[p.length-1]; let dm=0,im=0; const L=Math.hypot(b.x-a.x,b.y-a.y)||1;
+    for(let i=1;i<p.length-1;i++){ const d=Math.abs((b.x-a.x)*(a.y-p[i].y)-(a.x-p[i].x)*(b.y-a.y))/L; if(d>dm){dm=d;im=i;} }
+    if(dm>e){ const l=simp(p.slice(0,im+1),e), r=simp(p.slice(im),e); return l.slice(0,-1).concat(r); } return [a,b]; }
+  function classify(p){
+    if(p.length<8) return 'tap';
+    let len=0; for(let i=1;i<p.length;i++) len+=Math.hypot(p[i].x-p[i-1].x,p[i].y-p[i-1].y);
+    const xs=p.map(q=>q.x), ys=p.map(q=>q.y), w=Math.max(...xs)-Math.min(...xs), h=Math.max(...ys)-Math.min(...ys), dg=Math.hypot(w,h);
+    if(len<50) return 'tap';
+    const chord=Math.hypot(p[p.length-1].x-p[0].x,p[p.length-1].y-p[0].y);
+    if(chord/len>0.88) return 'line';
+    if(chord>0.35*dg) return 'open';
+    const cx=xs.reduce((a,b)=>a+b)/xs.length, cy=ys.reduce((a,b)=>a+b)/ys.length;
+    const rs=p.map(q=>Math.hypot(q.x-cx,q.y-cy)).sort((a,b)=>a-b), r10=rs[Math.floor(rs.length*.1)], r90=rs[Math.floor(rs.length*.9)];
+    const cl=p.concat([p[0]]); let fi=0,fd=0; cl.forEach((q,i)=>{ const d=Math.hypot(q.x-cl[0].x,q.y-cl[0].y); if(d>fd){fd=d;fi=i;} });
+    let vs=simp(cl.slice(0,fi+1),0.13*dg).slice(0,-1).concat(simp(cl.slice(fi),0.13*dg).slice(0,-1));
+    for(let ch=true;ch&&vs.length>3;){ ch=false; for(let i=0;i<vs.length;i++){ const a=vs[(i+vs.length-1)%vs.length],b=vs[i],c=vs[(i+1)%vs.length]; const a1=Math.atan2(b.y-a.y,b.x-a.x),a2=Math.atan2(c.y-b.y,c.x-b.x); let d=Math.abs(a2-a1); if(d>Math.PI) d=2*Math.PI-d; if(d<0.5){ vs.splice(i,1); ch=true; break; } } }
+    const v=vs.length;
+    if(v===3) return 'triangle';
+    return (r90/Math.max(r10,1)<1.3)?'circle':'square';
+  }
+  function segX(a,b){ const [p1,p2]=a,[p3,p4]=b; const d=(p2.x-p1.x)*(p4.y-p3.y)-(p2.y-p1.y)*(p4.x-p3.x); if(!d) return false;
+    const t=((p3.x-p1.x)*(p4.y-p3.y)-(p3.y-p1.y)*(p4.x-p3.x))/d, u=((p3.x-p1.x)*(p2.y-p1.y)-(p3.y-p1.y)*(p2.x-p1.x))/d; return t>0&&t<1&&u>0&&u<1; }
+  window._eggShapes={classify,segX};
+  const SEQ=['cross','circle','square','triangle'];
+  function openDraw(){
+    if(document.getElementById('egg-draw')) return;
+    const o=document.createElement('div'); o.id='egg-draw';
+    o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:9998;background:rgba(5,8,20,.6);touch-action:none';
+    const cv=document.createElement('canvas'); cv.style.cssText='width:100%;height:100%;display:block'; o.appendChild(cv);
+    const dots=document.createElement('div'); dots.style.cssText='position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:0;right:0;display:flex;gap:10px;justify-content:center;pointer-events:none';
+    dots.innerHTML=SEQ.map(()=>'<i style="width:12px;height:12px;border-radius:50%;border:2px solid var(--accent);display:block"></i>').join(''); o.appendChild(dots);
+    document.body.appendChild(o);
+    const dpr=window.devicePixelRatio||1; cv.width=innerWidth*dpr; cv.height=innerHeight*dpr; const c=cv.getContext('2d'); c.scale(dpr,dpr); c.lineWidth=5; c.lineCap='round'; c.lineJoin='round';
+    let step=0, pts=null, pend=null, idle=0, done=false;
+    const arm=()=>{ clearTimeout(idle); idle=setTimeout(close,9000); };
+    const close=()=>{ clearTimeout(idle); o.remove(); };
+    const paint=()=>[...dots.children].forEach((d,i)=>{ d.style.background=i<step?'var(--gold)':'transparent'; d.style.borderColor=i<step?'var(--gold)':'var(--accent)'; });
+    const clear=()=>c.clearRect(0,0,innerWidth,innerHeight);
+    const feed=kind=>{ if(kind==='tap'){ close(); return; }
+      if(kind==='line'){ if(pend&&Date.now()-pend.t<2200&&segX(pend.s,pts.seg)){ kind='cross'; pend=null; } else { pend={t:Date.now(),s:pts.seg}; if(step===0) return; kind='x'; } }
+      else pend=null;
+      if(kind===SEQ[step]) step++; else step=(kind===SEQ[0])?1:0;
+      paint();
+      if(step>=SEQ.length&&!done){ done=true; mark('shapes'); vib([30,40,30,40,30,40,120]); setTimeout(()=>{ close(); show(TROPHY,'Платина','Крест, круг, квадрат, треугольник. Все четыре фигуры нарисованы пальцем, трофей твой.'); },350); } };
+    o.addEventListener('pointerdown',e=>{ pts=[{x:e.clientX,y:e.clientY}]; clear(); c.strokeStyle='#f4c95d'; c.beginPath(); c.moveTo(e.clientX,e.clientY); try{o.setPointerCapture(e.pointerId);}catch(_){} arm(); });
+    o.addEventListener('pointermove',e=>{ if(!pts) return; pts.push({x:e.clientX,y:e.clientY}); c.lineTo(e.clientX,e.clientY); c.stroke(); });
+    const end=()=>{ if(!pts) return; const p=pts; p.seg=[p[0],p[p.length-1]]; const k=classify(p); setTimeout(clear,350); feed(k); pts=null; arm(); };
+    o.addEventListener('pointerup',end); o.addEventListener('pointercancel',end);
+    arm();
+  }
+  window._eggDraw=openDraw;
+  const h1=document.querySelector('header h1'); let lp=0;
+  if(h1){ h1.addEventListener('touchstart',e=>{ if(e.target.closest('.ico-h')) return; clearTimeout(lp); lp=setTimeout(()=>{ vib(25); openDraw(); },750); },{passive:true});
+    ['touchend','touchmove','touchcancel'].forEach(n=>h1.addEventListener(n,()=>clearTimeout(lp),{passive:true})); }
+  // 4. Долгое нажатие на счётчик игр: заряд до 100%
+  const cn=document.getElementById('cnt-shelf'); let ct=0, cbusy=false, csup=false;
+  if(cn){ const tab=cn.closest('.tab')||cn;
+    const stop=()=>clearTimeout(ct);
+    tab.addEventListener('pointerdown',()=>{ stop(); ct=setTimeout(()=>{ if(cbusy) return; cbusy=true; csup=true; const was=cn.textContent; let v=0; vib(15);
+        const iv=setInterval(()=>{ v+=4; cn.textContent=Math.min(v,100)+'%'; if(v>=100){ clearInterval(iv); vib([20,30,60]); mark('charge'); setTimeout(()=>{ cn.textContent=was; cbusy=false; show(DISC,'Заряд 100%','Стоп. Уже хватит, иди поиграй.'); },500); } },55); },650); });
+    ['pointerup','pointercancel','pointerleave'].forEach(n=>tab.addEventListener(n,stop));
+    tab.addEventListener('click',e=>{ if(csup){ csup=false; e.stopPropagation(); e.preventDefault(); } },true); }
+  // 5. Касания по подписи таймера: меняется текст
+  let cq=0, cqt=0;
+  document.addEventListener('click',e=>{ const sp=e.target.closest&&e.target.closest('#countdown span'); if(!sp) return;
+    cq++; window._cdN=cq; clearTimeout(cqt); cqt=setTimeout(()=>{ window._cdN=0; cq=0; if(typeof tickCountdown==='function') tickCountdown(); },6000);
+    if(cq===3) mark('timer'); if(typeof tickCountdown==='function') tickCountdown(); });
+  // 6. Щипок двумя пальцами по обложке
+  let pd=null, pimg=null;
+  document.addEventListener('touchstart',e=>{ if(e.touches.length===2){ const a=e.touches[0].target.closest&&e.touches[0].target.closest('img.cover'), b=e.touches[1].target.closest&&e.touches[1].target.closest('img.cover'); if(a&&a===b){ pimg=a; pd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY); } else pd=null; } },{passive:true});
+  document.addEventListener('touchmove',e=>{ if(pd==null||!pimg||e.touches.length!==2) return; const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    if(d<pd*0.72){ const i=pimg; pd=null; pimg=null; i.classList.remove('lift'); void i.offsetWidth; i.classList.add('lift'); vib(30); mark('pinch'); setTimeout(()=>i.classList.remove('lift'),1100); } },{passive:true});
+  // 7. Встряхнуть телефон: случайная игра
+  let sk=[], skl=0;
+  window.addEventListener('devicemotion',e=>{ const a=e.accelerationIncludingGravity; if(!a) return; const m=Math.hypot(a.x||0,a.y||0,a.z||0), now=Date.now();
+    if(m>32){ sk=sk.filter(t=>now-t<900); sk.push(now);
+      if(sk.length>=3&&now-skl>4000&&!document.hidden&&!document.querySelector('.mback,.egg-ov,#egg-draw')&&typeof openRandom==='function'){ skl=now; sk=[]; mark('shake'); vib(40); openRandom(true); } } });
+  // 8. Режим «Ретро-пиксели»: шесть быстрых касаний по поиску и одно долгое
+  let st6=[], px=0, pxt=0;
+  const pxOn=()=>{ if(document.documentElement.classList.contains('px')) return; document.documentElement.classList.add('px'); mark('pixel'); vib([20,30,20]);
+    clearTimeout(pxt); pxt=setTimeout(()=>{ document.documentElement.classList.remove('px'); show(FROG,'Ретро-режим выключен','Четыре оттенка зелёного закончились. Цвета вернулись.'); },60000); };
+  window._eggPx=pxOn;
+  document.addEventListener('pointerdown',e=>{ const s=e.target.closest&&e.target.closest('.searchbox'); if(!s){ st6=[]; return; }
+    const now=Date.now(); st6=st6.filter(t=>now-t<3500); st6.push(now); clearTimeout(px);
+    if(st6.length>=7){ px=setTimeout(()=>{ st6=[]; pxOn(); },600); } });
+  ['pointerup','pointercancel'].forEach(n=>document.addEventListener(n,()=>clearTimeout(px)));
 })();
 
 /* ---------- Настройки (шестерня) ---------- */
