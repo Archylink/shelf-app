@@ -1217,7 +1217,7 @@ function tickCountdown(){
   el.innerHTML=live.map(c=>{
     const ms=new Date(c.date)-new Date();
     if(ms<=0&&c.gif) return `<div><img src="${GIF_SOON}" alt="скоро" style="width:100%;display:block;border-radius:12px;margin-bottom:6px"><span>${cdQuip(1,'Предзагрузка GTA VI началась!')}</span></div>`;
-    if(ms<=0) return `<div><b>Уже! 🎉</b><span>${cdQuip(0,c.label)}</span></div>`;
+    if(ms<=0) return `<div><b>Уже! 🎉</b><span>${cdQuip(0,c.label)}</span><span style="display:block;margin-top:4px;font-weight:700;color:var(--accent2)">Приятной игры!</span></div>`;
     const d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),m=Math.floor(ms%36e5/6e4),sc=Math.floor(ms%6e4/1e3);
     return `<div><b>${d} дн ${h}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}</b><span>${cdQuip(0,c.label)}</span></div>`;
   }).join('');
