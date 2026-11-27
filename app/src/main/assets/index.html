@@ -119,6 +119,15 @@ img.cover.lift{animation:eggLift 1s cubic-bezier(.3,1.4,.5,1) both}
 .ico-h.padhit{display:inline-block;animation:eggPad .55s linear}
 html.px body>header,html.px body>main{filter:url(#gbf);image-rendering:pixelated}
 html.px img{image-rendering:pixelated}
+.gd-h{margin:16px 2px 8px;font-weight:700;font-size:14px;color:var(--muted)}
+.gd-it{display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.gd-t{flex:1;min-width:0;font-weight:600;font-size:15px;cursor:pointer}.gd-t small{display:block;margin-top:4px;font-weight:400;font-size:12.5px;color:var(--muted);line-height:1.4}
+.gd-links{display:flex;flex-wrap:wrap;gap:8px}.gd-links a{text-decoration:none}
+.gd-ov{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9000;background:var(--bg);color:var(--text);overflow-y:auto;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.gd-bar{position:sticky;top:0;display:flex;gap:8px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--border)}
+.gd-body{max-width:640px;margin:0 auto;padding:14px 16px 40px}.gd-body h2{margin:6px 0 12px;font-size:20px;text-wrap:balance}
+.gd-text{white-space:pre-wrap;line-height:1.55;font-size:15px;overflow-wrap:anywhere}
+.gd-src{margin-top:18px;font-size:12.5px;color:var(--muted)}.gd-src a{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -131,6 +140,7 @@ html.px img{image-rendering:pixelated}
     <div class="tab" data-tab="wish"><span class="ico-t" data-ic="wish"></span>Желаемое<span class="cnt" id="cnt-wish">0</span></div>
     <div class="tab" data-tab="stats"><span class="ico-t" data-ic="stats"></span>Аналитика</div>
     <div class="tab" data-tab="calendar"><span class="ico-t" data-ic="calendar"></span>Календарь<span class="cnt" id="cnt-calendar">0</span></div>
+    <div class="tab" data-tab="guides"><span class="ico-t" data-ic="guide"></span>Гайды<span class="cnt" id="cnt-guides">0</span></div>
     <div class="tab" data-tab="games"><span class="ico-t" data-ic="games"></span>Игры</div>
   </div>
 </header>
@@ -226,6 +236,15 @@ html.px img{image-rendering:pixelated}
     <div id="statsList"></div>
   </section>
 
+  <section class="section" id="guides">
+    <div class="card"><div class="form">
+      <select id="gdPick"><option value="">Выбрать из моих игр</option></select>
+      <input id="gdQ" type="search" placeholder="Название игры" enterkeyhint="search" autocomplete="off">
+      <button class="btn" id="gdGo" style="width:100%;background:var(--accent);color:#fff">Найти гайды</button>
+    </div><div class="meta" id="gdSt" style="margin-top:8px"></div></div>
+    <div id="gdRes"></div><div id="gdSaved"></div>
+    <div class="meta" style="text-align:center;margin-top:14px">Тексты берутся из вики Fandom и Википедии на русском, если их нет, то на английском. Нужен интернет.</div>
+  </section>
   <section class="section" id="calendar">
     <small class="hint">Добавь игру и дату выхода диска. Когда дата пройдёт, игра сама перейдёт в «Желаемое».</small>
     <input class="searchbox" id="searchCal" placeholder="Поиск в календаре...">
@@ -6785,11 +6804,106 @@ function initDigital(){
 </script>
 <script>
 (function(){
+const KEY='polka-guides', $=id=>document.getElementById(id);
+const E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const strip=h=>{ const d=document.createElement('div'); d.innerHTML=String(h||''); return (d.textContent||'').replace(/\s+/g,' ').trim(); };
+const ld=()=>{ try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ return {}; } };
+const sv=o=>{ try{ localStorage.setItem(KEY,JSON.stringify(o)); return true; }catch(e){ return false; } };
+async function jget(u){ const c=new AbortController(), t=setTimeout(()=>c.abort(),12000); try{ const r=await fetch(u,{signal:c.signal}); if(!r.ok) throw new Error('http '+r.status); return await r.json(); } finally{ clearTimeout(t); } }
+const q=o=>Object.keys(o).map(k=>k+'='+encodeURIComponent(o[k])).join('&');
+const cleanTitle=t=>String(t||'').replace(/\s*[\(\[].*?[\)\]]\s*/g,' ').replace(/\s+/g,' ').trim();
+let token=0;
+
+async function findWiki(name){
+  for(const lang of ['ru','en']){
+    try{
+      const j=await jget('https://community.fandom.com/api/v1/Search/CrossWiki?'+q({expand:1,query:name,lang:lang,limit:5}));
+      const it=(j.items||[]).find(x=>{ const l=(x.language||x.lang||lang); return l===lang && (x.url||x.domain); });
+      if(it){ let u=String(it.url||('https://'+it.domain)).replace(/\/+$/,''); return {base:u,name:it.name||it.title||u.replace(/^https?:\/\//,''),lang:lang}; }
+    }catch(e){}
+  }
+  return null;
+}
+async function wikiList(w,name){
+  const terms=w.lang==='ru'?['прохождение','гайд','трофеи','секреты']:['walkthrough','guide','trophies','secrets'];
+  const seen={}, out=[];
+  const runs=await Promise.all(terms.map(t=>jget(w.base+'/api.php?'+q({action:'query',list:'search',srsearch:t,srlimit:6,format:'json',origin:'*'})).catch(()=>null)));
+  runs.forEach(j=>{ ((j&&j.query&&j.query.search)||[]).forEach(r=>{ if(!seen[r.pageid]){ seen[r.pageid]=1; out.push({title:r.title,snip:strip(r.snippet)}); } }); });
+  return out.slice(0,12);
+}
+async function wikiText(base,title){
+  let j=await jget(base+'/api.php?'+q({action:'query',prop:'extracts',explaintext:1,exsectionformat:'plain',redirects:1,titles:title,format:'json',origin:'*'}));
+  const pg=Object.values((j.query&&j.query.pages)||{})[0];
+  if(pg&&pg.extract&&pg.extract.length>80) return pg.extract;
+  j=await jget(base+'/api.php?'+q({action:'parse',page:title,prop:'text',format:'json',origin:'*',redirects:1}));
+  const h=j.parse&&j.parse.text&&(j.parse.text['*']||j.parse.text);
+  const d=document.createElement('div'); d.innerHTML=String(h||''); d.querySelectorAll('script,style,table,.toc,.mw-editsection,.navbox').forEach(x=>x.remove());
+  return (d.innerText||d.textContent||'').replace(/\n{3,}/g,'\n\n').trim();
+}
+async function ruWiki(name){
+  try{ const j=await jget('https://ru.wikipedia.org/w/api.php?'+q({action:'query',format:'json',generator:'search',gsrsearch:name+' игра',gsrlimit:1,prop:'extracts|info',exintro:1,explaintext:1,inprop:'url',origin:'*'}));
+    const p=Object.values((j.query&&j.query.pages)||{})[0]; if(p&&p.extract) return {title:p.title,text:p.extract,url:p.fullurl}; }catch(e){}
+  return null;
+}
+
+function names(){ const seen={}, out=[]; const add=(t,tag)=>{ const n=cleanTitle(t); if(n&&!seen[n.toLowerCase()]){ seen[n.toLowerCase()]=1; out.push({n:n,tag:tag}); } };
+  try{ nowPlaying().forEach(g=>add(g.title,'Играю')); }catch(e){}
+  try{ games.forEach(g=>add(g.title,'')); }catch(e){}
+  try{ digital.forEach(g=>add(g.title,'')); }catch(e){}
+  return out; }
+function fillPick(){ const s=$('gdPick'); if(!s) return; const cur=s.value; s.innerHTML='<option value="">Выбрать из моих игр</option>'+names().map(x=>'<option value="'+E(x.n)+'">'+E(x.tag?x.tag+': ':'')+E(x.n)+'</option>').join(''); s.value=cur; }
+function savedList(){ const o=ld(), ks=Object.keys(o).sort((a,b)=>o[b].t-o[a].t); const c=$('cnt-guides'); if(c) c.textContent=ks.length;
+  const b=$('gdSaved'); if(!b) return; b.innerHTML=ks.length?'<div class="gd-h">Сохранено для чтения без сети</div>'+ks.map(k=>'<div class="gd-it"><div class="gd-t" data-sv="'+E(k)+'">'+E(o[k].title)+'<small>'+E(o[k].src)+'</small></div><button class="mv" data-del="'+E(k)+'" aria-label="Удалить">Убрать</button></div>').join(''):''; }
+
+function reader(it){
+  const ov=document.createElement('div'); ov.className='gd-ov';
+  ov.innerHTML='<div class="gd-bar"><button class="mv" id="gdBack">Назад</button><button class="mv" id="gdSave" style="margin-left:auto">Сохранить</button></div><div class="gd-body"><h2></h2><div class="gd-text">Загружаю…</div><div class="gd-src"></div></div>';
+  ov.querySelector('h2').textContent=it.title; document.body.appendChild(ov);
+  const close=()=>ov.remove(); ov.querySelector('#gdBack').onclick=close;
+  const src=ov.querySelector('.gd-src'); src.innerHTML='Источник: '+E(it.src)+', лицензия CC BY-SA. <a href="'+E(it.url)+'" target="_blank" rel="noopener">Открыть оригинал</a>';
+  const tx=ov.querySelector('.gd-text'), sb=ov.querySelector('#gdSave');
+  const done=t=>{ t=String(t||'').slice(0,80000); tx.textContent=t||'Текст не найден. Открой оригинал по ссылке ниже.'; it.text=t;
+    const o=ld(); sb.textContent=o[it.url]?'Убрать из сохранённых':'Сохранить'; };
+  sb.onclick=()=>{ const o=ld(); if(o[it.url]){ delete o[it.url]; sv(o); sb.textContent='Сохранить'; } else if(it.text){ const ks=Object.keys(o).sort((a,b)=>o[a].t-o[b].t); while(ks.length>=15) delete o[ks.shift()]; o[it.url]={title:it.title,src:it.src,t:Date.now(),text:it.text}; if(sv(o)) sb.textContent='Убрать из сохранённых'; else sb.textContent='Нет места'; } savedList(); };
+  if(it.text!=null) done(it.text); else it.load().then(done).catch(()=>{ tx.textContent='Не удалось загрузить. Проверь интернет или открой оригинал по ссылке ниже.'; });
+}
+
+async function go(){
+  const name=cleanTitle($('gdQ').value); if(!name) return; const my=++token; const st=$('gdSt'), res=$('gdRes');
+  res.innerHTML=''; st.textContent='Ищу вики и статьи по игре…';
+  const yt=(s)=>'https://www.youtube.com/results?search_query='+encodeURIComponent(name+' '+s);
+  const links='<div class="gd-h">Видео</div><div class="gd-links"><a class="mv" target="_blank" rel="noopener" href="'+yt('прохождение')+'">Прохождение</a><a class="mv" target="_blank" rel="noopener" href="'+yt('гайд платина трофеи')+'">Платина и трофеи</a><a class="mv" target="_blank" rel="noopener" href="'+yt('секреты и советы')+'">Секреты и советы</a></div>';
+  const [about,w]=await Promise.all([ruWiki(name),findWiki(name)]);
+  if(my!==token) return;
+  let html='';
+  if(about) html+='<div class="gd-h">Об игре</div><div class="gd-it"><div class="gd-t" data-about="1">'+E(about.title)+'<small>'+E(about.text.slice(0,220))+'…</small></div></div>';
+  let list=[]; if(w){ st.textContent='Нашёл вики «'+w.name+'», ищу гайды…'; list=await wikiList(w,name); if(my!==token) return; }
+  if(list.length) html+='<div class="gd-h">Гайды и прохождения'+(w.lang==='ru'?'':' (на английском: русской вики нет)')+'</div>'+list.map((x,i)=>'<div class="gd-it"><div class="gd-t" data-i="'+i+'">'+E(x.title)+'<small>'+E(x.snip.slice(0,150))+'</small></div></div>').join('');
+  st.textContent=(about||list.length)?'':'Статьи не нашлись. Видео ниже открываются в браузере.';
+  res.innerHTML=html+links;
+  res.onclick=e=>{ const a=e.target.closest('[data-about]'); if(a&&about){ reader({title:about.title,src:'Википедия',url:about.url,text:about.text}); return; }
+    const b=e.target.closest('[data-i]'); if(b){ const x=list[+b.dataset.i]; reader({title:x.title,src:w.name+' (Fandom)',url:w.base+'/wiki/'+encodeURIComponent(x.title.replace(/ /g,'_')),load:()=>wikiText(w.base,x.title)}); } };
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('.tab[data-tab="guides"]')){ fillPick(); savedList(); return; }
+  if(e.target.id==='gdGo'){ go(); return; }
+  const sv1=e.target.closest('[data-sv]'); if(sv1){ const o=ld()[sv1.dataset.sv]; if(o) reader({title:o.title,src:o.src,url:sv1.dataset.sv,text:o.text}); return; }
+  const d=e.target.closest('[data-del]'); if(d){ const o=ld(); delete o[d.dataset.del]; sv(o); savedList(); }
+});
+document.addEventListener('change',e=>{ if(e.target.id==='gdPick'&&e.target.value){ $('gdQ').value=e.target.value; go(); } });
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.id==='gdQ'){ e.preventDefault(); go(); } });
+window.addEventListener('load',savedList);
+window._gd={go:go};
+})();
+</script>
+<script>
+(function(){
 const ICO={
 shelf:'<path d="M4 20V6a2 2 0 0 1 2-2h3v16M9 20V4m0 16h9a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3v14"/>',
 digital:'<path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 9.5 4 4 0 0 1 17.5 18z"/>',
 wish:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
 stats:'<path d="M5 20V11M12 20V4M19 20v-6"/>',
+guide:'<path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/>',
 calendar:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
 games:'<path d="M7 8h10a4 4 0 0 1 4 4l-1 4a2 2 0 0 1-3.4.8L15 15H9l-1.6 1.8A2 2 0 0 1 4 16l-1-4a4 4 0 0 1 4-4zM8 10.5v3M6.5 12h3"/><circle cx="16" cy="11" r=".6"/>',
 disc:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/>',
